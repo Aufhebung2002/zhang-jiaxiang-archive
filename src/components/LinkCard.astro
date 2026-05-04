@@ -1,0 +1,46 @@
+---
+export interface Props {
+  index: number;
+  title: string;
+  url: string;
+  category: string;
+  description: string;
+  tags: string[];
+  priority: number;
+}
+
+const { index, title, url, category, description, tags, priority } = Astro.props;
+const hasUrl = url && url.trim().length > 0;
+---
+
+<div class="lk-card">
+  <span class="lk-num">{String(index).padStart(2, "0")}</span>
+
+  <div class="lk-info">
+    <div class="lk-title-row">
+      {hasUrl ? (
+        <a class="lk-title" href={url} target="_blank" rel="noopener noreferrer">{title}</a>
+      ) : (
+        <span class="lk-title lk-title-empty">{title}</span>
+      )}
+      <span class="lk-category">{category}</span>
+      {priority === 1 && <span class="lk-priority">常用</span>}
+    </div>
+
+    <div class="lk-url">
+      {hasUrl ? (
+        <span class="lk-url-text">{url}</span>
+      ) : (
+        <span class="lk-link-pending">链接待补充</span>
+      )}
+    </div>
+
+    <div class="lk-desc">{description}</div>
+
+    {tags.length > 0 && (
+      <div class="lk-tags">
+        {tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+    )}
+  </div>
+</div>

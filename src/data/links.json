@@ -1,0 +1,38 @@
+[
+  {
+    "id": "marxists-library",
+    "title": "马克思主义文库",
+    "url": "https://www.marxists.org/chinese/",
+    "category": "思想与文献",
+    "description": "多语种马克思主义经典文献在线文库，收录大量中文理论著作与历史文献。",
+    "tags": ["马克思主义", "文献", "理论"],
+    "priority": 1
+  },
+  {
+    "id": "annas-archive",
+    "title": "安娜档案馆",
+    "url": "https://annas-archive.org/",
+    "category": "资源检索",
+    "description": "大型开放学术资源搜索引擎，汇集多馆藏镜像入口。",
+    "tags": ["学术", "书籍", "开放获取"],
+    "priority": 1
+  },
+  {
+    "id": "github",
+    "title": "GitHub",
+    "url": "https://github.com/",
+    "category": "技术工具",
+    "description": "全球最大的代码托管与协作平台，开源社区的核心枢纽。",
+    "tags": ["开发", "开源", "协作"],
+    "priority": 2
+  },
+  {
+    "id": "chatgpt",
+    "title": "ChatGPT",
+    "url": "https://chatgpt.com/",
+    "category": "AI 工具",
+    "description": "OpenAI 开发的大型语言模型对话工具，辅助学习、写作与编程。",
+    "tags": ["AI", "工具", "对话"],
+    "priority": 2
+  }
+]

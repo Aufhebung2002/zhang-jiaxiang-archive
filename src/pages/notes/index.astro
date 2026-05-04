@@ -1,0 +1,119 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const notes = await getCollection("notes", ({ data }) => {
+  return data.public !== false;
+});
+notes.sort((a, b) => {
+  const da = a.data.date ?? new Date(0);
+  const db = b.data.date ?? new Date(0);
+  return db.getTime() - da.getTime();
+});
+
+const totalNotes = notes.length;
+---
+
+<BaseLayout>
+  <!-- 页面头部 -->
+  <section class="nt-header">
+    <p class="nt-overline">NOTES · NO. 006</p>
+    <h1 class="nt-page-title">随笔</h1>
+    <p class="nt-page-intro">这里将记录读书笔记、生活观察、工具探索和阶段性思考。它不是即时发布的动态流，而是一份慢慢生长的写作档案。</p>
+  </section>
+
+  <!-- 数据概览 -->
+  <section class="nt-stats">
+    <div class="nt-stats-grid">
+      <div class="nt-stat-item">
+        <span class="nt-stat-num">{String(totalNotes).padStart(2, "0")}</span>
+        <span class="nt-stat-label">文章记录</span>
+      </div>
+      <div class="nt-stat-item">
+        <span class="nt-stat-num">—</span>
+        <span class="nt-stat-label">正在生长</span>
+      </div>
+      <div class="nt-stat-item">
+        <span class="nt-stat-num">MD</span>
+        <span class="nt-stat-label">写作形式</span>
+      </div>
+      <div class="nt-stat-item">
+        <span class="nt-stat-num">04</span>
+        <span class="nt-stat-label">内容方向</span>
+      </div>
+    </div>
+    <p class="nt-stats-note">
+      内容方向：读书笔记 · 工具探索 · 生活观察 · 法学思考
+    </p>
+  </section>
+
+  <!-- 分类标签 -->
+  <div class="nt-filter">
+    <span class="nt-filter-label">分类</span>
+    <span class="nt-filter-tag is-active">全部</span>
+    <span class="nt-filter-tag">随笔</span>
+    <span class="nt-filter-tag">读书笔记</span>
+    <span class="nt-filter-tag">工具探索</span>
+    <span class="nt-filter-tag">生活观察</span>
+    <span class="nt-filter-tag">法学思考</span>
+  </div>
+
+  <!-- 文章列表 -->
+  <section>
+    <div class="section-label">
+      <span class="section-label-text">ARTICLES</span>
+      <span class="section-label-line"></span>
+    </div>
+
+    {notes.length === 0 ? (
+      <div class="nt-empty">
+        <p>暂无文章，写作档案正在生长中。</p>
+      </div>
+    ) : (
+      <div class="nt-list">
+        {notes.map((note, i) => (
+          <a href={`/notes/${note.id}`} class="nt-card">
+            <span class="nt-card-num">{String(i + 1).padStart(2, "0")}</span>
+            <div class="nt-card-info">
+              <div class="nt-card-title-row">
+                <span class="nt-card-title">{note.data.title}</span>
+                {note.data.category && (
+                  <span class="nt-card-category">{note.data.category}</span>
+                )}
+              </div>
+              {note.data.date && (
+                <span class="nt-card-date">
+                  {note.data.date.toLocaleDateString("zh-CN", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              )}
+              {note.data.description && (
+                <p class="nt-card-desc">{note.data.description}</p>
+              )}
+              {note.data.tags && note.data.tags.length > 0 && (
+                <div class="nt-card-tags">
+                  {note.data.tags.map((t) => <span class="tag">{t}</span>)}
+                </div>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <!-- 建设提示 -->
+  {notes.length <= 1 && (
+    <div class="nt-growing-hint">
+      <p>这个写作档案刚刚开始。未来这里会逐步记录读书笔记、工具探索、生活观察和阶段性思考。</p>
+    </div>
+  )}
+
+  <!-- 尾部 -->
+  <div class="nt-footer-note">
+    <p>以后只需要在 <code>src/content/notes/</code> 下新增 Markdown 文件，就可以继续扩展这个写作档案。</p>
+  </div>
+</BaseLayout>

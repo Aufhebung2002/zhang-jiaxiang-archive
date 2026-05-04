@@ -1,0 +1,66 @@
+[
+  {
+    "id": "western-philosophy-notes",
+    "title": "西方哲学讲义",
+    "author": "刘擎",
+    "field": "哲学",
+    "status": "在读",
+    "readDate": "",
+    "rating": "",
+    "tags": ["哲学", "入门", "西方哲学"],
+    "note": "",
+    "cover": "",
+    "externalLinks": {
+      "douban": "",
+      "other": ""
+    }
+  },
+  {
+    "id": "conquest-of-happiness",
+    "title": "幸福之路",
+    "author": "罗素",
+    "field": "哲学/随笔",
+    "status": "想读",
+    "readDate": "",
+    "rating": "",
+    "tags": ["哲学", "幸福", "生活"],
+    "note": "",
+    "cover": "",
+    "externalLinks": {
+      "douban": "",
+      "other": ""
+    }
+  },
+  {
+    "id": "1984",
+    "title": "1984",
+    "author": "乔治·奥威尔",
+    "field": "文学/反乌托邦",
+    "status": "已读",
+    "readDate": "",
+    "rating": "",
+    "tags": ["小说", "反乌托邦", "政治"],
+    "note": "",
+    "cover": "",
+    "externalLinks": {
+      "douban": "",
+      "other": ""
+    }
+  },
+  {
+    "id": "three-body",
+    "title": "三体",
+    "author": "刘慈欣",
+    "field": "科幻",
+    "status": "已读",
+    "readDate": "",
+    "rating": "",
+    "tags": ["科幻", "中国科幻", "宇宙"],
+    "note": "",
+    "cover": "",
+    "externalLinks": {
+      "douban": "",
+      "other": ""
+    }
+  }
+]

@@ -1,0 +1,61 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import JourneyMap from "../components/JourneyMap.astro";
+import JourneyCard from "../components/JourneyCard.astro";
+import journeys from "../data/journeys.json";
+---
+
+<BaseLayout>
+  <!-- 页面头部 -->
+  <section class="jn-header">
+    <p class="jn-overline">JOURNEY · NO. 003</p>
+    <h1 class="jn-page-title">旅程地图</h1>
+    <p class="jn-page-intro">这是一张记录成长、生活、求学、工作和旅行节点的个人空间档案。它不只是旅行打卡，而是经历和记忆的地图索引。</p>
+  </section>
+
+  <!-- 地图 -->
+  <JourneyMap journeys={journeys} />
+
+  <!-- 地点列表 -->
+  <section>
+    <div class="section-label">
+      <span class="section-label-text">LOCATIONS</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="jn-list">
+      {journeys.map((j, i) => (
+        <JourneyCard
+          index={i + 1}
+          title={j.title}
+          type={j.type}
+          date={j.date}
+          summary={j.summary}
+          story={j.story}
+          lat={j.lat}
+          lng={j.lng}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- 类型说明 -->
+  <section class="jn-legend">
+    <div class="section-label">
+      <span class="section-label-text">LEGEND</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="jn-legend-grid">
+      <div class="jn-legend-item">
+        <span class="jn-legend-marker" style="background: var(--color-accent);"></span>
+        <span class="jn-legend-label">主线城市</span>
+        <span class="jn-legend-desc">长期生活、学习、工作相关地点</span>
+      </div>
+      <div class="jn-legend-item">
+        <span class="jn-legend-marker" style="background: var(--color-accent-light);"></span>
+        <span class="jn-legend-label">旅行城市</span>
+        <span class="jn-legend-desc">阶段性旅行和体验世界的节点</span>
+      </div>
+    </div>
+    <p class="jn-legend-note">后续会继续补充北京、杭州等地点。</p>
+  </section>
+</BaseLayout>

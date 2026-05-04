@@ -1,0 +1,79 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LinkCard from "../components/LinkCard.astro";
+import links from "../data/links.json";
+
+// 统计数据
+const totalLinks = links.length;
+const categories = [...new Set(links.map((l) => l.category))];
+const commonCount = links.filter((l) => l.priority === 1).length;
+const allCategories = ["全部", ...categories];
+---
+
+<BaseLayout>
+  <!-- 页面头部 -->
+  <section class="lk-header">
+    <p class="lk-overline">LINKS · NO. 005</p>
+    <h1 class="lk-page-title">网站收藏</h1>
+    <p class="lk-page-intro">这里整理常用网站、思想资源、工具平台和学习入口。它不是简单收藏夹，而是我使用网络、工具和知识资源的索引。</p>
+  </section>
+
+  <!-- 数据概览 -->
+  <section class="lk-stats">
+    <div class="lk-stats-grid">
+      <div class="lk-stat-item">
+        <span class="lk-stat-num">{String(totalLinks).padStart(2, "0")}</span>
+        <span class="lk-stat-label">网站收藏</span>
+      </div>
+      <div class="lk-stat-item">
+        <span class="lk-stat-num">{String(categories.length).padStart(2, "0")}</span>
+        <span class="lk-stat-label">分类数量</span>
+      </div>
+      <div class="lk-stat-item">
+        <span class="lk-stat-num">{String(commonCount).padStart(2, "0")}</span>
+        <span class="lk-stat-label">常用资源</span>
+      </div>
+      <div class="lk-stat-item">
+        <span class="lk-stat-num">00</span>
+        <span class="lk-stat-label">批量导入</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 分类筛选 -->
+  <div class="lk-filter">
+    <span class="lk-filter-label">分类</span>
+    <span class="lk-filter-tag is-active">全部</span>
+    <span class="lk-filter-tag">思想与文献</span>
+    <span class="lk-filter-tag">技术工具</span>
+    <span class="lk-filter-tag">AI 工具</span>
+    <span class="lk-filter-tag">资源检索</span>
+    <span class="lk-filter-tag">常用</span>
+  </div>
+
+  <!-- 网站列表 -->
+  <section>
+    <div class="section-label">
+      <span class="section-label-text">INDEX</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="lk-list">
+      {links.map((l, i) => (
+        <LinkCard
+          index={i + 1}
+          title={l.title}
+          url={l.url}
+          category={l.category}
+          description={l.description}
+          tags={l.tags}
+          priority={l.priority}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- Edge 导入提示 -->
+  <div class="lk-footer-note">
+    <p>后续可以从 Edge 浏览器导出的收藏夹 HTML 文件中批量整理网站，并转换为本站可用的 links.json。</p>
+  </div>
+</BaseLayout>

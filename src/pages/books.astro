@@ -1,0 +1,97 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import BookCard from "../components/BookCard.astro";
+import books from "../data/books.json";
+
+// 统计数据
+const totalBooks = books.length;
+const fields = [...new Set(books.map((b) => b.field.split("/")[0]))];
+const statusCount = books.reduce(
+  (acc, b) => {
+    acc[b.status] = (acc[b.status] || 0) + 1;
+    return acc;
+  },
+  {} as Record<string, number>
+);
+const hasEmptyLinks = books.filter(
+  (b) => !b.externalLinks?.douban && !b.externalLinks?.other
+).length;
+---
+
+<BaseLayout>
+  <!-- 页面头部 -->
+  <section class="bk-header">
+    <p class="bk-overline">BOOKS · NO. 004</p>
+    <h1 class="bk-page-title">我的书架</h1>
+    <p class="bk-page-intro">这里记录读过、正在读、想读和影响过我的书。它不是完整书单，而是一份会随时间生长的阅读档案。</p>
+  </section>
+
+  <!-- 数据概览 -->
+  <section class="bk-stats">
+    <div class="bk-stats-grid">
+      <div class="bk-stat-item">
+        <span class="bk-stat-num">{String(totalBooks).padStart(2, "0")}</span>
+        <span class="bk-stat-label">书籍记录</span>
+      </div>
+      <div class="bk-stat-item">
+        <span class="bk-stat-num">{String(fields.length).padStart(2, "0")}</span>
+        <span class="bk-stat-label">涉及领域</span>
+      </div>
+      <div class="bk-stat-item">
+        <span class="bk-stat-num">
+          {statusCount["已读"] ? String(statusCount["已读"]).padStart(2, "0") : "00"}
+        </span>
+        <span class="bk-stat-label">已读</span>
+      </div>
+      <div class="bk-stat-item">
+        <span class="bk-stat-num">
+          {statusCount["在读"] ? String(statusCount["在读"]).padStart(2, "0") : "00"}
+        </span>
+        <span class="bk-stat-label">在读</span>
+      </div>
+    </div>
+    <p class="bk-stats-note">
+      外部链接状态：{totalBooks - hasEmptyLinks} / {totalBooks} 本已填写；其余链接待补充。
+    </p>
+  </section>
+
+  <!-- 筛选标签 -->
+  <div class="bk-filter">
+    <span class="bk-filter-label">领域</span>
+    <span class="bk-filter-tag is-active">全部</span>
+    <span class="bk-filter-tag">哲学</span>
+    <span class="bk-filter-tag">文学</span>
+    <span class="bk-filter-tag">科幻</span>
+    <span class="bk-filter-tag">待补充</span>
+  </div>
+
+  <!-- 书籍列表 -->
+  <section>
+    <div class="section-label">
+      <span class="section-label-text">CATALOG</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="bk-list">
+      {books.map((b, i) => (
+        <BookCard
+          index={i + 1}
+          title={b.title}
+          author={b.author}
+          field={b.field}
+          status={b.status}
+          readDate={b.readDate}
+          rating={b.rating}
+          tags={b.tags}
+          note={b.note}
+          cover={b.cover}
+          externalLinks={b.externalLinks}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- 尾部提示 -->
+  <div class="bk-footer-note">
+    <p>后续会继续补充书籍封面、阅读时间、豆瓣链接和读书笔记。</p>
+  </div>
+</BaseLayout>

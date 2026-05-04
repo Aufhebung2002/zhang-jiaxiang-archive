@@ -1,0 +1,29 @@
+---
+export interface Props {
+  index: number;
+  title: string;
+  type: string;
+  date: string;
+  summary: string;
+  story?: string;
+  lat: number;
+  lng: number;
+}
+const { index, title, type, date, summary, story } = Astro.props;
+---
+
+<div class="jn-card">
+  <div class="jn-card-header">
+    <span class="jn-num">{String(index).padStart(2, "0")}</span>
+    <span class="jn-title">{title}</span>
+    <span class="jn-type">{type}</span>
+  </div>
+  <div class="jn-date">{date}</div>
+  <div class="jn-summary">{summary}</div>
+  {story && (
+    <details class="jn-story">
+      <summary>展开</summary>
+      <p>{story}</p>
+    </details>
+  )}
+</div>

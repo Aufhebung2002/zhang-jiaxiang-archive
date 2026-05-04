@@ -1,0 +1,55 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+export interface Props {
+  frontmatter: {
+    title: string;
+    date?: Date;
+    category?: string;
+    tags?: string[];
+    description?: string;
+  };
+}
+
+const { frontmatter } = Astro.props;
+---
+
+<BaseLayout>
+  <p class="nt-article-overline">NOTES · ARTICLE</p>
+  <article class="prose">
+    <h1>{frontmatter.title}</h1>
+
+    <div class="nt-article-meta">
+      {frontmatter.date && (
+        <span class="nt-article-date">
+          {new Date(frontmatter.date).toLocaleDateString("zh-CN", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </span>
+      )}
+      {frontmatter.category && (
+        <span class="nt-article-category">{frontmatter.category}</span>
+      )}
+    </div>
+
+    {frontmatter.tags && frontmatter.tags.length > 0 && (
+      <div class="nt-article-tags">
+        {frontmatter.tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+    )}
+
+    {frontmatter.description && (
+      <p class="nt-article-desc">{frontmatter.description}</p>
+    )}
+
+    <hr class="nt-article-rule" />
+
+    <slot />
+
+    <nav class="nt-article-back">
+      <a href="/notes">← 返回随笔列表</a>
+    </nav>
+  </article>
+</BaseLayout>

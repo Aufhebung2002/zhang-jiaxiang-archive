@@ -1,0 +1,85 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import profile from "../data/profile.json";
+import journeys from "../data/journeys.json";
+import books from "../data/books.json";
+import links from "../data/links.json";
+
+const stats = {
+  journeys: journeys.length,
+  books: books.length,
+  links: links.length,
+  notes: 1,
+};
+---
+
+<BaseLayout>
+  <section class="hero">
+    <p class="hero-overline">ARCHIVE · NO. 001 · EST. 2026</p>
+    <h1>{profile.siteTitle}</h1>
+    <p class="hero-text">{profile.heroText}</p>
+
+    <div class="hero-bio">
+      <p>这里是张嘉祥的数字档案馆，记录阅读、工具探索、旅程经验、法学学习和个人思考。它始于 2026 年 5 月 4 日青年节，是一个由记忆、审美、工具和 AI 共同搭建的长期个人档案。</p>
+    </div>
+
+    <div class="keywords">
+      {profile.keywords.map((kw: string) => <span class="tag">{kw}</span>)}
+    </div>
+  </section>
+
+  <section class="archive-stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-num">{String(stats.journeys).padStart(2, "0")}</span>
+        <span class="stat-label">旅程地点</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">{String(stats.books).padStart(2, "0")}</span>
+        <span class="stat-label">书籍记录</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">{String(stats.links).padStart(2, "0")}</span>
+        <span class="stat-label">网站收藏</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">{String(stats.notes).padStart(2, "0")}</span>
+        <span class="stat-label">随笔文章</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-index">
+    <div class="index-header">
+      <span class="index-label">INDEX</span>
+      <span class="index-line"></span>
+    </div>
+    <nav class="entry-cards">
+      <a href="/about" class="entry-card">
+        <span class="entry-num">01</span>
+        <span class="entry-title">关于我</span>
+        <span class="entry-desc">个人介绍与建站说明</span>
+      </a>
+      <a href="/journeys" class="entry-card">
+        <span class="entry-num">02</span>
+        <span class="entry-title">旅程地图</span>
+        <span class="entry-desc">生活与旅行的轨迹</span>
+      </a>
+      <a href="/books" class="entry-card">
+        <span class="entry-num">03</span>
+        <span class="entry-title">我的书架</span>
+        <span class="entry-desc">读过的与想读的书</span>
+      </a>
+      <a href="/links" class="entry-card">
+        <span class="entry-num">04</span>
+        <span class="entry-title">网站收藏</span>
+        <span class="entry-desc">常去的有用站点</span>
+      </a>
+      <a href="/notes" class="entry-card">
+        <span class="entry-num">05</span>
+        <span class="entry-title">随笔</span>
+        <span class="entry-desc">读书笔记与生活观察</span>
+      </a>
+    </nav>
+  </section>
+</BaseLayout>

@@ -1,0 +1,128 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import profile from "../data/profile.json";
+---
+
+<BaseLayout>
+  <!-- 档案头部 -->
+  <section class="about-header">
+    <p class="about-overline">ABOUT · NO. 002</p>
+    <h1 class="about-name">{profile.name}</h1>
+    <p class="about-site-title">{profile.siteTitle}</p>
+    <p class="about-meta">
+      建站时间：<time datetime="2026-05-04">2026 年 5 月 4 日青年节</time>
+    </p>
+    <div class="about-header-keywords">
+      {profile.keywords.map((kw: string) => <span class="tag">{kw}</span>)}
+    </div>
+  </section>
+
+  <!-- 个人简介 -->
+  <section class="about-section">
+    <div class="section-label">
+      <span class="section-label-text">PROFILE</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="about-bio">
+      <p>你好，欢迎来到"张嘉祥的数字档案馆"。</p>
+      <p>这个网站开始于 2026 年 5 月 4 日青年节。这一年是我的 24 岁本命年。我和同代人完整经历了中国高速发展的年代，也亲眼见证了 AI 从惊艳登场到逐渐进入学习、写作、编程和日常生活。</p>
+      <p>从初中开始，我就喜欢阅读科幻小说和哲学类内容。后来，我学习法学，进入现实的工作和生活，也持续保持着对工具、知识、技术和世界的好奇。这个网站不是一份简历，也不只是一个博客，而是我尝试建立的一份"数字生命"：它保存我的阅读、旅程、收藏、思考和成长轨迹。</p>
+      <p>它首先是为我自己建立的，帮助我整理记忆、复盘经历、沉淀知识；同时，也希望未来能为亲朋好友、后来者，或者任何希望了解我的人，提供一个温和、真实、有秩序的入口。</p>
+    </div>
+  </section>
+
+  <!-- 时间线 -->
+  <section class="about-section">
+    <div class="section-label">
+      <span class="section-label-text">TIMELINE</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="about-timeline">
+      <div class="tl-item">
+        <div class="tl-marker"></div>
+        <div class="tl-content">
+          <span class="tl-period">初中时期</span>
+          <p class="tl-desc">开始喜欢科幻小说和哲学类内容，对宇宙、社会秩序与人类处境产生最初的好奇。</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-marker"></div>
+        <div class="tl-content">
+          <span class="tl-period">大学阶段</span>
+          <p class="tl-desc">学习法学，形成对规则、语言和社会秩序的兴趣。</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-marker"></div>
+        <div class="tl-content">
+          <span class="tl-period">2022 年</span>
+          <p class="tl-desc">ChatGPT 横空出世，开始关注 AI 对学习、写作和工具使用的影响。</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-marker"></div>
+        <div class="tl-content">
+          <span class="tl-period">2026 年 5 月 4 日</span>
+          <p class="tl-desc">开始建设"张嘉祥的数字档案馆"，尝试用开放标准构建个人数字生命档案。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 关键词卡片 -->
+  <section class="about-section">
+    <div class="section-label">
+      <span class="section-label-text">KEYWORDS</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="about-kw-grid">
+      <div class="about-kw-card">
+        <span class="kw-num">01</span>
+        <span class="kw-title">工具探索者</span>
+        <p class="kw-desc">持续寻找和评估能提升效率与理解力的软件、方法与工作流。</p>
+      </div>
+      <div class="about-kw-card">
+        <span class="kw-num">02</span>
+        <span class="kw-title">长期学习者</span>
+        <p class="kw-desc">相信积累的力量，把学习视为贯穿一生的日常实践而非阶段性任务。</p>
+      </div>
+      <div class="about-kw-card">
+        <span class="kw-num">03</span>
+        <span class="kw-title">法学背景</span>
+        <p class="kw-desc">受过系统的法学训练，关心规则、语言和秩序的底层逻辑。</p>
+      </div>
+      <div class="about-kw-card">
+        <span class="kw-num">04</span>
+        <span class="kw-title">阅读者</span>
+        <p class="kw-desc">从科幻和哲学入门，逐渐扩展至人文社科领域，用阅读搭建精神世界。</p>
+      </div>
+      <div class="about-kw-card">
+        <span class="kw-num">05</span>
+        <span class="kw-title">探索体验世界者</span>
+        <p class="kw-desc">用脚步和感官理解地理、文化和生活方式的多样性。</p>
+      </div>
+      <div class="about-kw-card">
+        <span class="kw-num">06</span>
+        <span class="kw-title">略带科技感</span>
+        <p class="kw-desc">对技术和工具保持克制的热情，不过度追逐潮流但不拒绝好用的新事物。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 公开边界 -->
+  <section class="about-section">
+    <div class="section-label">
+      <span class="section-label-text">BOUNDARY</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="about-boundary">
+      <p>本网站按照公开标准设计，主要展示阅读、旅程、收藏、工具探索和个人思考。</p>
+      <p>不会展示：工作内部信息、具体案件细节、他人隐私、精确住址和敏感个人信息。</p>
+    </div>
+  </section>
+
+  <!-- 收束 -->
+  <div class="about-closing">
+    <p>这个档案馆会随着我的阅读、旅程、工具和思考持续生长。</p>
+  </div>
+</BaseLayout>

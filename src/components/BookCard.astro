@@ -1,0 +1,66 @@
+---
+export interface Props {
+  index: number;
+  title: string;
+  author: string;
+  field: string;
+  status: string;
+  readDate?: string;
+  rating?: string;
+  tags: string[];
+  note?: string;
+  cover?: string;
+  externalLinks?: { douban?: string; other?: string };
+}
+
+const { index, title, author, field, status, readDate, rating, tags, note, cover, externalLinks } = Astro.props;
+
+function firstChar(s: string): string {
+  const ch = s.trim().charAt(0);
+  return ch || "?";
+}
+---
+
+<div class="bk-card">
+  <span class="bk-num">{String(index).padStart(2, "0")}</span>
+
+  <div class="bk-cover">
+    {cover ? (
+      <img src={cover} alt={title} class="bk-cover-img" />
+    ) : (
+      <span class="bk-cover-placeholder">{firstChar(title)}</span>
+    )}
+  </div>
+
+  <div class="bk-info">
+    <div class="bk-title-row">
+      <span class="bk-title">{title}</span>
+      <span class="bk-status">{status}</span>
+    </div>
+    <div class="bk-author">{author}  ·  {field}</div>
+
+    <div class="bk-meta">
+      <span>{readDate || "阅读时间待补充"}</span>
+      {rating && <span>{"★".repeat(Number(rating))}{"☆".repeat(5 - Number(rating))}</span>}
+    </div>
+
+    {tags.length > 0 && (
+      <div class="bk-tags">
+        {tags.map((t) => <span class="tag">{t}</span>)}
+      </div>
+    )}
+
+    {note && <div class="bk-note">{note}</div>}
+
+    <div class="bk-links">
+      {externalLinks?.douban ? (
+        <a href={externalLinks.douban} target="_blank" rel="noopener">豆瓣</a>
+      ) : (
+        <span class="bk-link-pending">豆瓣链接待补充</span>
+      )}
+      {externalLinks?.other && (
+        <> · <a href={externalLinks.other} target="_blank" rel="noopener">其他</a></>
+      )}
+    </div>
+  </div>
+</div>
