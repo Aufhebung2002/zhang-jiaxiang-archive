@@ -1,6 +1,7 @@
 ---
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import profile from "../data/profile.json";
 import "../styles/global.css";
 ---
 
@@ -10,8 +11,8 @@ import "../styles/global.css";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="description" content={import("../data/profile.json").then(m => m.default.shortBio) } />
-    <title>{import("../data/profile.json").then(m => m.default.siteTitle) }</title>
+    <meta name="description" content={profile.shortBio} />
+    <title>{profile.siteTitle}</title>
   </head>
   <body>
     <Header />

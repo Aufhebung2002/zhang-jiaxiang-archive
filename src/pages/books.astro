@@ -1,32 +1,81 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import BookCard from "../components/BookCard.astro";
+import BookWallCard from "../components/BookWallCard.astro";
 import books from "../data/books.json";
 
-// 统计数据
+// ── 分类封面映射 ──
+function fieldToCover(field: string): string {
+  const map: Record<string, string> = {
+    "传记与人物": "/images/category-covers/传记与人物.png",
+    "法学": "/images/category-covers/法学.png",
+    "工具与技术": "/images/category-covers/工具与技术.png",
+    "经济与社会": "/images/category-covers/经济与社会.png",
+    "科幻": "/images/category-covers/科幻.png",
+    "数学与科学": "/images/category-covers/数学与科学.png",
+    "文学": "/images/category-covers/文学.png",
+    "心理与成长": "/images/category-covers/心理与成长.png",
+    "哲学与思想": "/images/category-covers/哲学与思想.png",
+    "其他": "/images/category-covers/其他.png",
+  };
+  return map[field] || map["其他"];
+}
+
+// ── 墙尺寸 ──
+function getWallSize(id: string): "small" | "tall" | "wide" | "large" {
+  const h = id.split("").reduce((s, c) => s + c.charCodeAt(0), 0);
+  const v = h % 12;
+  if (v < 5) return "small";
+  if (v < 9) return "tall";
+  if (v < 11) return "wide";
+  return "large";
+}
+
+function seededSample(arr: any[], n: number, seed: number) {
+  const copy = [...arr];
+  let s = seed;
+  function rnd() { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, Math.min(n, copy.length));
+}
+const WALL_SIZE = 40;
+const initialSample = seededSample(books, WALL_SIZE, 42);
+
 const totalBooks = books.length;
-const fields = [...new Set(books.map((b) => b.field.split("/")[0]))];
-const statusCount = books.reduce(
-  (acc, b) => {
-    acc[b.status] = (acc[b.status] || 0) + 1;
-    return acc;
-  },
-  {} as Record<string, number>
-);
-const hasEmptyLinks = books.filter(
-  (b) => !b.externalLinks?.douban && !b.externalLinks?.other
-).length;
+const fields = [...new Set(books.map((b) => b.field))].sort();
+const languages = [...new Set(books.map((b) => b.language).filter(Boolean))].sort();
+const readCount = books.filter((b) => b.status === "已读").length;
+const unreadCount = books.filter((b) => b.status === "已下载/待读" || b.status === "想读").length;
+const chineseCount = books.filter((b) => b.language === "Chinese").length;
+const englishCount = books.filter((b) => b.language === "English").length;
+
+const booksJson = JSON.stringify(books);
+const fieldsJson = JSON.stringify(fields);
+const languagesJson = JSON.stringify(languages);
+
+const coverMap = JSON.stringify({
+  "传记与人物": "/images/category-covers/传记与人物.png",
+  "法学": "/images/category-covers/法学.png",
+  "工具与技术": "/images/category-covers/工具与技术.png",
+  "经济与社会": "/images/category-covers/经济与社会.png",
+  "科幻": "/images/category-covers/科幻.png",
+  "数学与科学": "/images/category-covers/数学与科学.png",
+  "文学": "/images/category-covers/文学.png",
+  "心理与成长": "/images/category-covers/心理与成长.png",
+  "哲学与思想": "/images/category-covers/哲学与思想.png",
+  "其他": "/images/category-covers/其他.png",
+});
 ---
 
 <BaseLayout>
-  <!-- 页面头部 -->
   <section class="bk-header">
     <p class="bk-overline">BOOKS · NO. 004</p>
     <h1 class="bk-page-title">我的书架</h1>
     <p class="bk-page-intro">这里记录读过、正在读、想读和影响过我的书。它不是完整书单，而是一份会随时间生长的阅读档案。</p>
   </section>
 
-  <!-- 数据概览 -->
   <section class="bk-stats">
     <div class="bk-stats-grid">
       <div class="bk-stat-item">
@@ -35,63 +84,834 @@ const hasEmptyLinks = books.filter(
       </div>
       <div class="bk-stat-item">
         <span class="bk-stat-num">{String(fields.length).padStart(2, "0")}</span>
-        <span class="bk-stat-label">涉及领域</span>
+        <span class="bk-stat-label">分类</span>
       </div>
       <div class="bk-stat-item">
-        <span class="bk-stat-num">
-          {statusCount["已读"] ? String(statusCount["已读"]).padStart(2, "0") : "00"}
-        </span>
+        <span class="bk-stat-num">{String(readCount).padStart(2, "0")}</span>
         <span class="bk-stat-label">已读</span>
       </div>
       <div class="bk-stat-item">
-        <span class="bk-stat-num">
-          {statusCount["在读"] ? String(statusCount["在读"]).padStart(2, "0") : "00"}
-        </span>
-        <span class="bk-stat-label">在读</span>
+        <span class="bk-stat-num">{String(unreadCount).padStart(2, "0")}</span>
+        <span class="bk-stat-label">待读</span>
+      </div>
+      <div class="bk-stat-item">
+        <span class="bk-stat-num">{String(chineseCount).padStart(2, "0")}</span>
+        <span class="bk-stat-label">中文</span>
+      </div>
+      <div class="bk-stat-item">
+        <span class="bk-stat-num">{String(englishCount).padStart(2, "0")}</span>
+        <span class="bk-stat-label">英文</span>
       </div>
     </div>
-    <p class="bk-stats-note">
-      外部链接状态：{totalBooks - hasEmptyLinks} / {totalBooks} 本已填写；其余链接待补充。
-    </p>
   </section>
 
-  <!-- 筛选标签 -->
-  <div class="bk-filter">
-    <span class="bk-filter-label">领域</span>
-    <span class="bk-filter-tag is-active">全部</span>
-    <span class="bk-filter-tag">哲学</span>
-    <span class="bk-filter-tag">文学</span>
-    <span class="bk-filter-tag">科幻</span>
-    <span class="bk-filter-tag">待补充</span>
-  </div>
+  <!-- 搜索与筛选 -->
+  <section class="bk-toolbar">
+    <div class="bk-search-wrap">
+      <input type="text" id="bk-search" class="bk-search-input" placeholder="搜索书名、作者、分类、标签…" autocomplete="off" />
+      <span class="bk-search-icon"></span>
+    </div>
+    <div class="bk-filter-row">
+      <span class="bk-filter-label">分类</span>
+      <span class="bk-filter-tag is-active" data-filter="field" data-value="">全部</span>
+      {fields.map((f) => (<span class="bk-filter-tag" data-filter="field" data-value={f}>{f}</span>))}
+    </div>
+    <div class="bk-filter-row">
+      <span class="bk-filter-label">状态</span>
+      <span class="bk-filter-tag is-active" data-filter="status" data-value="">全部</span>
+      <span class="bk-filter-tag" data-filter="status" data-value="已读">已读</span>
+      <span class="bk-filter-tag" data-filter="status" data-value="在读">在读</span>
+      <span class="bk-filter-tag" data-filter="status" data-value="想读">想读</span>
+      <span class="bk-filter-tag" data-filter="status" data-value="已下载/待读">已下载/待读</span>
+      <span class="bk-filter-tag" data-filter="status" data-value="待补充">待补充</span>
+    </div>
+    <div class="bk-filter-row">
+      <span class="bk-filter-label">语言</span>
+      <span class="bk-filter-tag is-active" data-filter="lang" data-value="">全部语言</span>
+      {languages.map((l) => (<span class="bk-filter-tag" data-filter="lang" data-value={l}>{l}</span>))}
+      <span class="bk-filter-tag" data-filter="lang" data-value="__other__">其他</span>
+    </div>
+    <div class="bk-viewbar">
+      <div class="bk-view-toggle">
+        <button class="bk-view-btn is-active" data-view="wall" id="btn-view-wall">书墙视图</button>
+        <button class="bk-view-btn" data-view="list" id="btn-view-list">列表视图</button>
+      </div>
+      <div class="bk-result-info">
+        <span id="bk-result-text">当前筛选 {totalBooks} 本，书墙展示 {WALL_SIZE} 本</span>
+        <button class="bk-reshuffle-btn" id="btn-reshuffle">换一组</button>
+      </div>
+    </div>
+  </section>
 
-  <!-- 书籍列表 -->
-  <section>
+  <!-- ═══ 书墙 ═══ -->
+  <section id="bk-wall-section">
+    <div class="section-label">
+      <span class="section-label-text">WALL</span>
+      <span class="section-label-line"></span>
+    </div>
+    <div class="books-wall-stage">
+      <div class="books-wall-grid" id="books-wall-grid">
+        {initialSample.map((b) => (
+          <BookWallCard
+            id={b.id}
+            title={b.title}
+            author={b.author}
+            field={b.field}
+            status={b.status}
+            year={b.year}
+            language={b.language}
+            tags={b.tags}
+            externalLinks={b.externalLinks}
+            sizeHint={getWallSize(b.id)}
+            coverSrc={b.cover || fieldToCover(b.field)}
+          />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 列表 ═══ -->
+  <section id="bk-list-section" style="display:none">
     <div class="section-label">
       <span class="section-label-text">CATALOG</span>
       <span class="section-label-line"></span>
     </div>
-    <div class="bk-list">
-      {books.map((b, i) => (
-        <BookCard
-          index={i + 1}
-          title={b.title}
-          author={b.author}
-          field={b.field}
-          status={b.status}
-          readDate={b.readDate}
-          rating={b.rating}
-          tags={b.tags}
-          note={b.note}
-          cover={b.cover}
-          externalLinks={b.externalLinks}
-        />
-      ))}
-    </div>
+    <div class="books-list-view" id="books-list-view"></div>
   </section>
 
-  <!-- 尾部提示 -->
+  <div class="bk-empty" id="bk-empty" style="display:none">
+    <p>没有找到匹配的书籍。</p>
+  </div>
+
   <div class="bk-footer-note">
     <p>后续会继续补充书籍封面、阅读时间、豆瓣链接和读书笔记。</p>
   </div>
+
+  <!-- 视口级浮动详情卡 + 连接线（pos:fixed，不占文档流） -->
+  <svg class="book-detail-connector-layer" id="book-detail-connector-layer" aria-hidden="true" hidden>
+    <line id="connector-line" x1="0" y1="0" x2="0" y2="0" />
+  </svg>
+  <aside class="book-viewport-detail-panel" id="book-viewport-detail-panel" hidden>
+    <div class="bd-content" id="bd-content"></div>
+  </aside>
 </BaseLayout>
+
+<script type="application/json" id="bk-books-data" set:html={booksJson}></script>
+<script type="application/json" id="bk-fields-data" set:html={fieldsJson}></script>
+<script type="application/json" id="bk-languages-data" set:html={languagesJson}></script>
+<script type="application/json" id="bk-cover-map" set:html={coverMap}></script>
+
+<script>
+  (function () {
+    const books: any[] = JSON.parse(document.getElementById("bk-books-data")?.textContent || "[]");
+    const allFields: string[] = JSON.parse(document.getElementById("bk-fields-data")?.textContent || "[]");
+    const allLangs: string[] = JSON.parse(document.getElementById("bk-languages-data")?.textContent || "[]");
+    const coverMap: Record<string, string> = JSON.parse(document.getElementById("bk-cover-map")?.textContent || "{}");
+
+    const wallGrid = document.getElementById("books-wall-grid")!;
+    const wallSection = document.getElementById("bk-wall-section")!;
+    const listView = document.getElementById("books-list-view")!;
+    const listSection = document.getElementById("bk-list-section")!;
+    const emptyEl = document.getElementById("bk-empty")!;
+    const resultText = document.getElementById("bk-result-text")!;
+    const searchInput = document.getElementById("bk-search") as HTMLInputElement;
+    const btnReshuffle = document.getElementById("btn-reshuffle")!;
+    const btnWall = document.getElementById("btn-view-wall")!;
+    const btnList = document.getElementById("btn-view-list")!;
+
+    // 视口级浮动元素
+    const viewportPanel = document.getElementById("book-viewport-detail-panel")!;
+    const bdContent = document.getElementById("bd-content")!;
+    const connectorLayer = document.getElementById("book-detail-connector-layer")! as unknown as SVGSVGElement;
+    const connectorLine = document.getElementById("connector-line")!;
+
+    let activeFilters: Record<string, string> = { field: "", status: "", lang: "" };
+    let searchQuery = "";
+    let currentView: "wall" | "list" = "wall";
+    let pinnedId: string | null = null;
+    let currentHoverId: string | null = null;
+    let detailPanelToken = 0;
+    let listPage = 1;
+    const WALL_SIZE = 40;
+    const PAGE_SIZE = 15;
+    const PANEL_WIDTH = 330;
+    const PANEL_GAP = 26;
+
+    const tagBlocklist = /^\d{4}$|^中文$|^英文$|^Chinese$|^English$|^Traditional Chinese$|^(EPUB|PDF|MOBI|AZW3|AZW|DJVU|FB2|TXT|RTF|DOCX?|CBR|CBZ)$/i;
+    const isDesktop = window.matchMedia("(min-width: 769px)").matches;
+
+    function hashId(id: string): number { return id.split("").reduce((s, c) => s + c.charCodeAt(0), 0); }
+    function getWallSize(id: string): string {
+      const v = hashId(id) % 12;
+      if (v < 5) return "small"; if (v < 9) return "tall"; if (v < 11) return "wide"; return "large";
+    }
+    function getCover(b: any): string { return b.cover || coverMap[b.field] || coverMap["其他"]; }
+    function esc(s: string): string {
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function matchesSearch(b: any): boolean {
+      if (!searchQuery) return true;
+      const q = searchQuery.toLowerCase();
+      return [b.title, b.author, b.field, ...(b.tags || []), b.note || "", b.year || ""].join(" ").toLowerCase().includes(q);
+    }
+    function matchesFilters(b: any): boolean {
+      if (activeFilters.field && b.field !== activeFilters.field) return false;
+      if (activeFilters.status && b.status !== activeFilters.status) return false;
+      if (activeFilters.lang) {
+        if (activeFilters.lang === "__other__") { if (allLangs.includes(b.language || "")) return false; }
+        else { if (b.language !== activeFilters.lang) return false; }
+      }
+      return true;
+    }
+    function getFiltered(): any[] { return books.filter((b: any) => matchesSearch(b) && matchesFilters(b)); }
+    function sampleBooks(pool: any[], n: number): any[] {
+      if (pool.length <= n) return [...pool];
+      const arr = [...pool];
+      for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+      return arr.slice(0, n);
+    }
+    function findBook(id: string): any | undefined { return books.find((b: any) => b.id === id); }
+    function filterTags(tags: string[]): string[] { return (tags || []).filter((t) => !tagBlocklist.test(t)); }
+    function hasNote(book: any): boolean { const n = (book.note || "").trim(); return n.length > 0 && n !== "待补充"; }
+
+    // ── 墙卡片 HTML ──
+    function buildWallCard(b: any): string {
+      const sz = getWallSize(b.id);
+      const src = getCover(b);
+      return `<div class="bw-card" data-size="${sz}" data-id="${esc(b.id)}">
+        <img class="bw-card-img" src="${esc(src)}" alt="${esc(b.title)}" loading="lazy" decoding="async" />
+      </div>`;
+    }
+
+    // ── 列表卡片 HTML（紧凑书目目录布局）──
+    function buildListCard(b: any, idx: number): string {
+      const src = getCover(b);
+      const dTags = filterTags(b.tags).slice(0, 3);
+      const hasDouban = !!b.externalLinks?.douban;
+      const meta = [b.field, b.status, b.year].filter(Boolean).map((item: string) => `<span class="bl-meta-item">${esc(item)}</span>`).join("");
+      return `<article class="bl-card">
+        <span class="bl-num" aria-label="序号 ${idx}">${String(idx).padStart(3, "0")}</span>
+        <div class="bl-cover-cell">
+          <img class="bl-cover-img" src="${esc(src)}" alt="${esc(b.title)}" loading="lazy" decoding="async" />
+        </div>
+        <div class="bl-info">
+          <h3 class="bl-title">${esc(b.title)}</h3>
+          <p class="bl-author">${esc(b.author)}</p>
+          <div class="bl-meta">${meta}</div>
+          ${dTags.length ? `<div class="bl-tags">${dTags.map((t: string) => `<span class="bl-tag">${esc(t)}</span>`).join("")}</div>` : ""}
+        </div>
+        ${hasDouban ? `<a class="bl-douban" href="${esc(b.externalLinks.douban)}" target="_blank" rel="noopener">豆瓣</a>` : ""}
+      </article>`;
+    }
+
+    // ── 渲染详情内容到 bdContent ──
+    function renderPanelContent(book: any) {
+      const dTags = filterTags(book.tags).slice(0, 5);
+      const pinned = pinnedId === book.id;
+      bdContent.innerHTML = `
+        <div class="bd-book-header">
+          <span class="bd-field">${esc(book.field)}</span>
+          ${pinned ? '<span class="bd-pin-badge">已固定</span>' : ""}
+        </div>
+        <h2 class="bd-title">${esc(book.title)}</h2>
+        <p class="bd-author">${esc(book.author)}</p>
+        <div class="bd-meta">
+          <span class="bd-status-tag">${esc(book.status)}</span>
+          ${book.year ? `<span class="bd-year">${esc(book.year)}</span>` : ""}
+        </div>
+        ${dTags.length ? `<div class="bd-tags">${dTags.map((t: string) => `<span class="bd-tag">${esc(t)}</span>`).join("")}</div>` : ""}
+        ${hasNote(book) ? `<div class="bd-note"><p>${esc(book.note)}</p></div>` : ""}
+        ${book.externalLinks?.douban ? `<a class="bd-douban" href="${esc(book.externalLinks.douban)}" target="_blank" rel="noopener">豆瓣链接 →</a>` : ""}
+        ${pinned ? '<button class="bd-unpin-btn" id="bd-unpin-btn">取消固定</button>' : ""}
+      `;
+      if (pinned) {
+        const unpinBtn = document.getElementById("bd-unpin-btn");
+        if (unpinBtn) unpinBtn.addEventListener("click", (e) => { e.stopPropagation(); unpinDetail(); });
+      }
+    }
+
+    // ── 视口级 fixed 定位 ──
+    function positionViewportPanel(card: HTMLElement) {
+      if (currentView !== "wall" || !card.isConnected) {
+        hideViewportPanel({ force: true });
+        return;
+      }
+
+      const token = ++detailPanelToken;
+
+      if (!isDesktop) {
+        viewportPanel.style.cssText = "position:static;width:100%;max-width:100%;display:block;margin-top:0.5rem;box-shadow:none;border-radius:0;border-left:none;border-right:none;";
+        viewportPanel.hidden = false;
+        try { connectorLayer.hidden = true; } catch (_) {}
+        return;
+      }
+
+      const cardRect = card.getBoundingClientRect();
+      const cardCenterY = cardRect.top + cardRect.height / 2;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      const spaceRight = vw - cardRect.right - PANEL_GAP;
+      const spaceLeft = cardRect.left - PANEL_GAP;
+
+      let panelLeft: number;
+      let panelOnRight: boolean;
+
+      if (spaceRight >= PANEL_WIDTH) {
+        panelLeft = cardRect.right + PANEL_GAP;
+        panelOnRight = true;
+      } else if (spaceLeft >= PANEL_WIDTH) {
+        panelLeft = cardRect.left - PANEL_WIDTH - PANEL_GAP;
+        panelOnRight = false;
+      } else {
+        // 左右都不够，贴右侧
+        panelLeft = vw - PANEL_WIDTH - 20;
+        panelOnRight = true;
+      }
+      panelLeft = Math.max(8, Math.min(panelLeft, vw - PANEL_WIDTH - 8));
+
+      // 先显示才能测量高度
+      viewportPanel.style.cssText = `position:fixed;width:${PANEL_WIDTH}px;max-width:min(${PANEL_WIDTH}px,86vw);left:${panelLeft}px;top:0;right:auto;display:block;`;
+      viewportPanel.hidden = false;
+
+      requestAnimationFrame(() => {
+        if (token !== detailPanelToken || currentView !== "wall" || viewportPanel.hidden || !card.isConnected) return;
+
+        const panelHeight = viewportPanel.offsetHeight;
+        let panelTop = cardCenterY - panelHeight / 2;
+        panelTop = Math.max(20, Math.min(panelTop, vh - panelHeight - 20));
+        viewportPanel.style.top = panelTop + "px";
+
+        // 虚线连接
+        try {
+          drawConnector(cardRect, panelLeft, panelTop, panelHeight, panelOnRight);
+        } catch (_) { /* connector 失败不阻断 */ }
+      });
+    }
+
+    function drawConnector(cardRect: DOMRect, panelLeft: number, panelTop: number, panelHeight: number, panelOnRight: boolean) {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      connectorLayer.setAttribute("width", String(vw));
+      connectorLayer.setAttribute("height", String(vh));
+      connectorLayer.setAttribute("viewBox", `0 0 ${vw} ${vh}`);
+      connectorLayer.hidden = false;
+
+      const cardCenterY = cardRect.top + cardRect.height / 2;
+      const panelCenterY = panelTop + panelHeight / 2;
+
+      let x1: number, x2: number;
+      if (panelOnRight) {
+        x1 = cardRect.right + 2;
+        x2 = panelLeft - 2;
+      } else {
+        x1 = cardRect.left - 2;
+        x2 = panelLeft + PANEL_WIDTH + 2;
+      }
+
+      connectorLine.setAttribute("x1", x1.toFixed(1));
+      connectorLine.setAttribute("y1", cardCenterY.toFixed(1));
+      connectorLine.setAttribute("x2", x2.toFixed(1));
+      connectorLine.setAttribute("y2", panelCenterY.toFixed(1));
+    }
+
+    function hideViewportPanel(options: { force?: boolean } = {}) {
+      if (pinnedId && !options.force) return;
+      detailPanelToken++;
+      pinnedId = null;
+      currentHoverId = null;
+      viewportPanel.hidden = true;
+      viewportPanel.style.cssText = "";
+      try { connectorLayer.hidden = true; } catch (_) {}
+    }
+
+    function showPlaceholder() {
+      hideViewportPanel({ force: true });
+    }
+
+    function unpinDetail() {
+      pinnedId = null;
+      const card = currentHoverId ? wallGrid.querySelector(`[data-id="${currentHoverId}"]`) as HTMLElement : null;
+      if (card) {
+        const book = findBook(currentHoverId!);
+        if (book) renderPanelContent(book);
+        positionViewportPanel(card);
+      } else {
+        hideViewportPanel();
+      }
+    }
+
+    // ── 卡片事件 ──
+    function bindWallCardEvents() {
+      wallGrid.querySelectorAll<HTMLElement>(".bw-card").forEach((card) => {
+        card.addEventListener("mouseenter", () => {
+          if (currentView !== "wall") return;
+          const id = card.dataset.id; if (!id) return;
+          currentHoverId = id;
+          const book = findBook(id); if (!book) return;
+          renderPanelContent(book);
+          if (!pinnedId || pinnedId === id) positionViewportPanel(card);
+        });
+        card.addEventListener("click", () => {
+          if (currentView !== "wall") return;
+          const id = card.dataset.id; if (!id) return;
+          if (pinnedId === id) return;
+          pinnedId = id;
+          currentHoverId = id;
+          const book = findBook(id); if (!book) return;
+          renderPanelContent(book);
+          positionViewportPanel(card);
+        });
+      });
+    }
+
+    // ── 离开书墙 / 切换视图时隐藏面板 ──
+    function bindPanelHide() {
+      // 文档级监听：用 closest 检查鼠标是否在卡片/面板/连线上
+      document.addEventListener("mousemove", (e: MouseEvent) => {
+        if (currentView !== "wall") {
+          if (!viewportPanel.hidden) hideViewportPanel({ force: true });
+          return;
+        }
+        if (pinnedId) return;
+        if (viewportPanel.hidden) return;
+        const t = e.target as HTMLElement;
+        if (t.closest?.(".bw-card") || viewportPanel.contains(t) || connectorLayer.contains(t)) return;
+        hideViewportPanel();
+      });
+    }
+
+    function renderWall() {
+      const filtered = getFiltered();
+      const sample = sampleBooks(filtered, WALL_SIZE);
+      resultText.textContent = `当前筛选 ${filtered.length} 本，书墙展示 ${sample.length} 本`;
+      wallGrid.innerHTML = sample.map((b: any) => buildWallCard(b)).join("");
+      bindWallCardEvents();
+      showPlaceholder();
+      if (filtered.length === 0) {
+        emptyEl.style.display = "block"; wallSection.style.display = "none"; listSection.style.display = "none";
+      } else {
+        emptyEl.style.display = "none";
+        wallSection.style.display = currentView === "wall" ? "" : "none";
+        listSection.style.display = currentView === "list" ? "" : "none";
+      }
+    }
+
+    function renderList() {
+      const filtered = getFiltered();
+      const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+      if (listPage > totalPages) listPage = totalPages;
+      if (listPage < 1) listPage = 1;
+      const start = (listPage - 1) * PAGE_SIZE;
+      const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+      resultText.textContent = `当前筛选 ${filtered.length} 本，第 ${listPage} / ${totalPages} 页`;
+
+      let html = pageItems.map((b: any, i: number) => buildListCard(b, start + i + 1)).join("");
+
+      if (totalPages > 1) {
+        html += `<div class="bl-pagination">
+          <button class="bl-page-btn" id="bl-prev"${listPage <= 1 ? " disabled" : ""}>← 上一页</button>
+          <span class="bl-page-info">第 ${listPage} / ${totalPages} 页</span>
+          <button class="bl-page-btn" id="bl-next"${listPage >= totalPages ? " disabled" : ""}>下一页 →</button>
+        </div>`;
+      }
+
+      listView.innerHTML = html;
+
+      if (totalPages > 1) {
+        document.getElementById("bl-prev")?.addEventListener("click", () => { if (listPage > 1) { listPage--; renderList(); } });
+        document.getElementById("bl-next")?.addEventListener("click", () => { if (listPage < totalPages) { listPage++; renderList(); } });
+      }
+
+      showPlaceholder();
+      if (filtered.length === 0) {
+        emptyEl.style.display = "block"; wallSection.style.display = "none"; listSection.style.display = "none";
+      } else {
+        emptyEl.style.display = "none";
+        wallSection.style.display = currentView === "wall" ? "" : "none";
+        listSection.style.display = currentView === "list" ? "" : "none";
+      }
+    }
+
+    function render() { if (currentView === "wall") renderWall(); else renderList(); }
+
+    btnWall.addEventListener("click", () => {
+      currentView = "wall"; btnWall.classList.add("is-active"); btnList.classList.remove("is-active");
+      btnReshuffle.style.display = ""; listPage = 1; showPlaceholder(); render();
+    });
+    btnList.addEventListener("click", () => {
+      currentView = "list"; btnList.classList.add("is-active"); btnWall.classList.remove("is-active");
+      btnReshuffle.style.display = "none"; listPage = 1; showPlaceholder(); render();
+    });
+    btnReshuffle.addEventListener("click", () => { if (currentView === "wall") { showPlaceholder(); renderWall(); } });
+    searchInput.addEventListener("input", () => { searchQuery = searchInput.value.trim(); listPage = 1; render(); });
+    document.querySelectorAll(".bk-filter-tag").forEach((tag) => {
+      tag.addEventListener("click", function (this: HTMLElement) {
+        const fk = this.dataset.filter!; const fv = this.dataset.value!;
+        document.querySelectorAll(`[data-filter="${fk}"]`).forEach((el) => el.classList.remove("is-active"));
+        this.classList.add("is-active"); activeFilters[fk] = fv; listPage = 1; render();
+      });
+    });
+
+    // ═══════════════════════════════════════════
+    // 邻近放大效果（仅桌面端，仅缩放）
+    // ═══════════════════════════════════════════
+    if (isDesktop) {
+      let rafId = 0; let mouseX = -9999; let mouseY = -9999; let active = false;
+      const MAX_DIST = 420;
+      const BASE_SCALE = 1.0;
+      const MAX_SCALE = 1.28;
+
+      function updateProximity() {
+        const grid = document.getElementById("books-wall-grid");
+        if (!grid || grid.style.display === "none") { rafId = requestAnimationFrame(updateProximity); return; }
+        const cards = grid.querySelectorAll<HTMLElement>(".bw-card");
+        const wr = grid.getBoundingClientRect();
+        cards.forEach((card) => {
+          const cr = card.getBoundingClientRect();
+          const cx = cr.left + cr.width / 2 - wr.left;
+          const cy = cr.top + cr.height / 2 - wr.top;
+          const dx = mouseX - cx; const dy = mouseY - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < MAX_DIST && active) {
+            const t = 1 - dist / MAX_DIST;
+            const scale = BASE_SCALE + t * t * t * (MAX_SCALE - BASE_SCALE);
+            card.style.transform = `scale(${scale.toFixed(3)})`;
+            card.style.zIndex = String(dist < 80 ? 60 : Math.round(scale * 10));
+          } else {
+            card.style.transform = "scale(1)"; card.style.zIndex = "1";
+          }
+        });
+        rafId = requestAnimationFrame(updateProximity);
+      }
+
+      const stage = document.querySelector(".books-wall-stage");
+      if (stage) {
+        stage.addEventListener("mouseenter", () => { active = true; if (!rafId) rafId = requestAnimationFrame(updateProximity); });
+        stage.addEventListener("mousemove", (e) => {
+          const grid = document.getElementById("books-wall-grid");
+          if (grid) { const wr = grid.getBoundingClientRect(); mouseX = (e as MouseEvent).clientX - wr.left; mouseY = (e as MouseEvent).clientY - wr.top; }
+        });
+        stage.addEventListener("mouseleave", () => {
+          active = false;
+          document.querySelectorAll<HTMLElement>(".bw-card").forEach((c) => { c.style.transform = "scale(1)"; c.style.zIndex = "1"; });
+        });
+      }
+      rafId = requestAnimationFrame(updateProximity);
+    }
+
+    bindWallCardEvents();
+    bindPanelHide();
+  })();
+</script>
+
+<style>
+  /* ── 工具栏 ── */
+  .bk-toolbar { margin: 1.5rem 0 2rem; }
+  .bk-search-wrap { position: relative; margin-bottom: 1rem; }
+  .bk-search-input {
+    width: 100%; padding: 0.6rem 2.2rem 0.6rem 0.75rem;
+    border: 1px solid var(--color-border); border-radius: 4px;
+    font-size: 0.9rem; font-family: inherit;
+    background: var(--color-surface); color: var(--color-text);
+    outline: none; transition: border-color 0.2s; box-sizing: border-box;
+  }
+  .bk-search-input:focus { border-color: var(--color-accent); }
+  .bk-search-icon { position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%); color: var(--color-muted); font-size: 0.85rem; pointer-events: none; }
+  .bk-search-icon::after { content: "⌕"; }
+  .bk-filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin-bottom: 0.5rem; }
+
+  /* ── 视图切换 ── */
+  .bk-viewbar { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+  .bk-view-toggle { display: flex; gap: 0; border: 1px solid var(--color-border); border-radius: 3px; overflow: hidden; }
+  .bk-view-btn { padding: 0.35rem 0.85rem; font-size: 0.78rem; font-family: inherit; border: none; background: var(--color-surface); color: var(--color-text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .bk-view-btn:hover { background: #faf8f5; }
+  .bk-view-btn.is-active { background: var(--color-tag-bg); color: var(--color-accent); }
+  .bk-view-btn + .bk-view-btn { border-left: 1px solid var(--color-border); }
+  .bk-result-info { display: flex; align-items: center; gap: 0.75rem; font-size: 0.78rem; color: var(--color-muted); }
+  .bk-reshuffle-btn { padding: 0.25rem 0.65rem; font-size: 0.72rem; font-family: inherit; border: 1px solid var(--color-border); border-radius: 3px; background: var(--color-surface); color: var(--color-text-muted); cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+  .bk-reshuffle-btn:hover { border-color: var(--color-accent-light); color: var(--color-accent); }
+
+  /* ═══ 书墙 ═══ */
+  .books-wall-stage {
+    max-width: min(1180px, 92vw);
+    margin: 0 auto 5rem;
+    padding: 0.5rem 0;
+  }
+
+  .books-wall-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 115px;
+    gap: 10px;
+    grid-auto-flow: dense;
+  }
+  @media (max-width: 1280px) { .books-wall-grid { grid-template-columns: repeat(5, 1fr); } }
+  @media (max-width: 1024px) { .books-wall-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 105px; } }
+  @media (max-width: 768px)  {
+    .books-wall-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: auto; gap: 8px; }
+    .books-wall-stage { padding: 0; margin-bottom: 2rem; }
+  }
+  @media (max-width: 480px)  { .books-wall-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ── 书墙卡片（纯封面）── */
+  .bw-card {
+    position: relative; overflow: hidden; border-radius: 3px;
+    cursor: pointer; will-change: transform; transform-origin: center center;
+    transition: transform 0.28s ease-out, box-shadow 0.35s;
+    background: #e8e4dc;
+    border: 1px solid rgba(180, 170, 150, 0.25);
+  }
+  .bw-card:hover {
+    box-shadow: 0 10px 36px rgba(100, 80, 50, 0.16);
+    z-index: 30 !important;
+    transform: scale(1.04);
+  }
+
+  .bw-card[data-size="small"] { grid-column: span 1; grid-row: span 1; }
+  .bw-card[data-size="tall"]  { grid-column: span 1; grid-row: span 2; }
+  .bw-card[data-size="wide"]  { grid-column: span 2; grid-row: span 1; }
+  .bw-card[data-size="large"] { grid-column: span 2; grid-row: span 2; }
+  @media (max-width: 768px) {
+    .bw-card[data-size="tall"],
+    .bw-card[data-size="wide"],
+    .bw-card[data-size="large"] { grid-column: span 1; grid-row: span 1; }
+  }
+
+  .bw-card-img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: none;
+  }
+
+  /* ═══ 视口级浮动详情卡 ═══ */
+  .book-viewport-detail-panel {
+    position: fixed;
+    width: 330px;
+    max-width: min(330px, 86vw);
+    z-index: 80;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 1.2rem 1.1rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+  }
+  .book-viewport-detail-panel[hidden] { display: none; }
+
+  @media (max-width: 768px) {
+    .book-viewport-detail-panel {
+      position: static;
+      width: 100%;
+      max-width: 100%;
+      box-shadow: none;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      margin-top: 0.5rem;
+    }
+  }
+
+  /* ═══ 视口级虚线连接 SVG ═══ */
+  .book-detail-connector-layer {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 70;
+  }
+  .book-detail-connector-layer[hidden] { display: none; }
+  .book-detail-connector-layer line {
+    stroke: var(--color-accent-light, #b8a878);
+    stroke-width: 1;
+    stroke-dasharray: 5 6;
+    opacity: 0.45;
+  }
+
+  /* ═══ 详情内容样式 ═══ */
+  .bd-book-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; }
+  .bd-field {
+    font-family: var(--font-mono); font-size: 0.58rem; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--color-accent);
+  }
+  .bd-pin-badge {
+    font-size: 0.55rem; color: var(--color-accent); background: var(--color-tag-bg);
+    padding: 0.06rem 0.3rem; border-radius: 2px;
+  }
+  .bd-title {
+    font-size: 0.98rem; font-weight: 700; color: var(--color-text);
+    line-height: 1.35; margin: 0 0 0.35rem;
+  }
+  .bd-author { font-size: 0.78rem; color: var(--color-text-secondary); margin: 0 0 0.5rem; }
+  .bd-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; margin-bottom: 0.45rem; }
+  .bd-status-tag {
+    font-size: 0.6rem; padding: 0.04rem 0.35rem;
+    border: 1px solid var(--color-accent-light); border-radius: 2px;
+    color: var(--color-accent);
+  }
+  .bd-year { font-size: 0.68rem; color: var(--color-text-muted); }
+  .bd-tags { display: flex; flex-wrap: wrap; gap: 0.22rem; margin-bottom: 0.45rem; }
+  .bd-tag {
+    font-size: 0.6rem; color: var(--color-text-muted);
+    background: #faf8f5; padding: 0.04rem 0.3rem; border-radius: 2px;
+  }
+  .bd-note {
+    margin-top: 0.4rem; padding: 0.45rem 0.55rem; background: #fcfbf9;
+    border-left: 2px solid var(--color-accent-light); border-radius: 0 2px 2px 0;
+    font-size: 0.75rem; color: var(--color-text-secondary); line-height: 1.6;
+  }
+  .bd-note p { margin: 0; }
+  .bd-douban {
+    display: inline-block; margin-top: 0.5rem; font-size: 0.7rem;
+    color: var(--color-accent); text-decoration: none;
+  }
+  .bd-douban:hover { text-decoration: underline; }
+  .bd-unpin-btn {
+    display: inline-block; margin-top: 0.6rem;
+    padding: 0.18rem 0.55rem; font-size: 0.65rem; font-family: inherit;
+    border: 1px solid var(--color-border); border-radius: 3px;
+    background: var(--color-surface); color: var(--color-text-muted);
+    cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  }
+  .bd-unpin-btn:hover { border-color: var(--color-accent-light); color: var(--color-accent); }
+
+  /* ═══ 列表视图（紧凑横向书目）═══ */
+  .books-list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--color-border);
+  }
+
+  .bl-card {
+    display: grid;
+    grid-template-columns: 2.2rem 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.7rem;
+    min-height: 86px;
+    padding: 0.42rem 0.7rem;
+    background: var(--color-surface);
+    transition: background 0.12s;
+  }
+  .bl-card:hover { background: #fafaf7; }
+  .bl-num {
+    align-self: start;
+    padding-top: 0.18rem;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--color-text-muted);
+    letter-spacing: 0.06em;
+  }
+
+  .bl-cover-cell {
+    width: 48px;
+    height: 70px;
+    border: 1px solid var(--color-border);
+    border-radius: 2px;
+    overflow: hidden;
+    background: #ece8e0;
+  }
+  .bl-cover-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .bl-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.16rem;
+  }
+  .bl-title {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.22;
+  }
+  .bl-author {
+    margin: 0;
+    font-size: 0.68rem;
+    color: var(--color-text-secondary);
+    line-height: 1.25;
+  }
+  .bl-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.28rem;
+    font-size: 0.61rem;
+    color: var(--color-text-muted);
+    line-height: 1.2;
+  }
+  .bl-meta-item + .bl-meta-item::before {
+    content: "/";
+    margin-right: 0.28rem;
+    color: var(--color-border);
+  }
+  .bl-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.18rem;
+  }
+  .bl-tag {
+    font-size: 0.54rem;
+    color: var(--color-text-muted);
+    background: #faf8f5;
+    padding: 0.02rem 0.22rem;
+    border-radius: 2px;
+  }
+  .bl-douban {
+    align-self: center;
+    justify-self: end;
+    font-size: 0.6rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    padding: 0.13rem 0.34rem;
+    border: 1px solid var(--color-accent-light);
+    border-radius: 2px;
+    transition: background 0.15s;
+  }
+  .bl-douban:hover { background: var(--color-tag-bg); }
+
+  /* ── 分页 ── */
+  .bl-pagination {
+    display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+    padding: 0.75rem 0.7rem; background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+  }
+  .bl-page-btn {
+    padding: 0.25rem 0.6rem; font-size: 0.7rem; font-family: inherit;
+    border: 1px solid var(--color-border); border-radius: 3px;
+    background: var(--color-surface); color: var(--color-text-muted);
+    cursor: pointer; transition: border-color 0.15s, color 0.15s;
+  }
+  .bl-page-btn:hover:not(:disabled) { border-color: var(--color-accent-light); color: var(--color-accent); }
+  .bl-page-btn:disabled { opacity: 0.35; cursor: default; }
+  .bl-page-info { font-size: 0.7rem; color: var(--color-text-muted); }
+
+  .bk-empty { text-align: center; padding: 3rem 1rem; color: var(--color-muted); font-size: 0.95rem; border: 1px dashed var(--color-border); border-radius: 4px; }
+
+  @media (max-width: 768px) {
+    .bk-viewbar { flex-direction: column; align-items: flex-start; }
+    .bl-card {
+      grid-template-columns: 2rem 44px minmax(0, 1fr);
+      gap: 0.55rem;
+      min-height: 82px;
+      padding: 0.45rem 0.6rem;
+    }
+    .bl-cover-cell { width: 44px; height: 64px; }
+    .bl-title { font-size: 0.78rem; }
+    .bl-author { font-size: 0.65rem; }
+    .bl-meta { font-size: 0.58rem; }
+    .bl-douban {
+      grid-column: 3;
+      justify-self: start;
+      margin-top: 0.06rem;
+      padding: 0.1rem 0.3rem;
+    }
+    .bk-filter-row { gap: 0.3rem; }
+    .bk-filter-tag { font-size: 0.72rem; padding: 0.15rem 0.4rem; }
+  }
+</style>

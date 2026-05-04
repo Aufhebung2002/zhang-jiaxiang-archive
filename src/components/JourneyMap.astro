@@ -45,9 +45,7 @@ const journeysJson = JSON.stringify(journeys);
 
     try {
       var raw = dataEl ? dataEl.textContent || "" : "";
-      console.log("[JourneyMap] raw data (first 80 chars):", raw.slice(0, 80));
       journeys = JSON.parse(raw || "[]");
-      console.log("[JourneyMap] parsed journeys", journeys);
     } catch (error) {
       console.warn("[JourneyMap] JSON 数据解析失败", error);
       journeys = [];
@@ -111,8 +109,6 @@ const journeysJson = JSON.stringify(journeys);
       setTimeout(function () {
         map.invalidateSize();
       }, 100);
-
-      console.log("[JourneyMap] init success");
     } catch (e) {
       console.warn("[JourneyMap] 地图初始化出错", e);
     }

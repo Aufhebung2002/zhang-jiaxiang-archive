@@ -1,0 +1,27 @@
+---
+export interface Props {
+  id: string;
+  title: string;
+  author: string;
+  field: string;
+  status: string;
+  year?: string;
+  language?: string;
+  tags: string[];
+  externalLinks?: { douban?: string; other?: string };
+  sizeHint: "small" | "tall" | "wide" | "large";
+  coverSrc: string;
+}
+
+const { id, title, sizeHint, coverSrc } = Astro.props;
+---
+
+<div class="bw-card" data-size={sizeHint} data-id={id}>
+  <img
+    class="bw-card-img"
+    src={coverSrc}
+    alt={title}
+    loading="lazy"
+    decoding="async"
+  />
+</div>

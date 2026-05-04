@@ -104,6 +104,33 @@ description: "文章摘要"
 正文内容。
 ```
 
+## 本地同步书目
+
+使用 Playwright 从 Z-Library 个人书库导出书目元数据。
+
+```bash
+# 1. 运行同步脚本（会自动打开浏览器窗口）
+npm run sync:books:zlibrary
+
+# 2. 在打开的浏览器中手动登录 Z-Library
+
+# 3. 确认能看到书籍列表后，回到终端按 Enter
+
+# 4. 脚本自动逐页扫描，输出到 output/ 目录：
+#    - output/books_raw_from_zlibrary.json
+#    - output/books_raw_from_zlibrary.csv
+#    - output/books_raw_summary.json
+
+# 5. 把导出的 JSON/CSV 交给 ChatGPT 清洗分类
+
+# 6. 人工确认后再导入 src/data/books.json
+```
+
+**注意**：
+- 只提取书目元数据，不下载任何电子书。
+- 不保存账号密码或 Cookie 到输出文件。
+- 如果抓取失败，可检查 `output/zlibrary-page-*-debug.html` 排查页面结构变化。
+
 ## 隐私提醒
 
 本网站按公开标准设计。

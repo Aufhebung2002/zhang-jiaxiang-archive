@@ -60,6 +60,175 @@ img {
   height: auto;
 }
 
+/* /books 列表视图：客户端动态生成的书目行需要全局选择器 */
+.books-list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.books-list-view .bl-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 92px;
+  max-height: 110px;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-sizing: border-box;
+}
+
+.books-list-view .bl-card:last-of-type {
+  border-bottom: none;
+}
+
+.books-list-view .bl-card:hover {
+  background: #fafaf7;
+}
+
+.books-list-view .bl-num {
+  width: 2.1rem;
+  flex: 0 0 2.1rem;
+  align-self: flex-start;
+  padding-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.books-list-view .bl-cover-cell {
+  width: 56px;
+  height: 78px;
+  flex: 0 0 56px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+  background: #ece8e0;
+  box-sizing: border-box;
+}
+
+.books-list-view .bl-cover-cell img,
+.books-list-view .bl-cover-img {
+  width: 56px;
+  height: 78px;
+  max-width: none;
+  object-fit: cover;
+  display: block;
+}
+
+.books-list-view .bl-info {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+}
+
+.books-list-view .bl-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.22;
+  color: var(--color-text);
+}
+
+.books-list-view .bl-author {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.25;
+  color: var(--color-text-secondary);
+}
+
+.books-list-view .bl-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  font-size: 0.61rem;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+
+.books-list-view .bl-meta-item + .bl-meta-item::before {
+  content: "/";
+  margin-right: 0.28rem;
+  color: var(--color-border);
+}
+
+.books-list-view .bl-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.18rem;
+}
+
+.books-list-view .bl-tag {
+  font-size: 0.54rem;
+  color: var(--color-text-muted);
+  background: #faf8f5;
+  padding: 0.02rem 0.22rem;
+  border-radius: 2px;
+}
+
+.books-list-view .bl-douban {
+  flex: 0 0 auto;
+  align-self: center;
+  font-size: 0.6rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  padding: 0.13rem 0.34rem;
+  border: 1px solid var(--color-accent-light);
+  border-radius: 2px;
+  transition: background 0.15s;
+}
+
+.books-list-view .bl-douban:hover {
+  background: var(--color-tag-bg);
+}
+
+@media (max-width: 768px) {
+  .books-list-view .bl-card {
+    gap: 0.55rem;
+    min-height: 84px;
+    max-height: none;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .books-list-view .bl-num {
+    width: 1.85rem;
+    flex-basis: 1.85rem;
+  }
+
+  .books-list-view .bl-cover-cell {
+    width: 44px;
+    height: 64px;
+    flex-basis: 44px;
+  }
+
+  .books-list-view .bl-cover-cell img,
+  .books-list-view .bl-cover-img {
+    width: 44px;
+    height: 64px;
+  }
+
+  .books-list-view .bl-title {
+    font-size: 0.78rem;
+  }
+
+  .books-list-view .bl-author {
+    font-size: 0.65rem;
+  }
+
+  .books-list-view .bl-meta {
+    font-size: 0.58rem;
+  }
+}
+
 ul, ol {
   list-style: none;
 }
@@ -477,128 +646,15 @@ ul, ol {
   color: var(--color-accent);
 }
 
-/* 书籍列表 */
-.bk-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--color-surface);
-}
-
-/* 书籍卡片 */
-.bk-card {
-  display: flex;
-  gap: 1rem;
-  padding: 1.2rem 1.4rem;
-  border-bottom: 1px solid var(--color-border);
-  transition: background 0.1s;
-  align-items: flex-start;
-}
-.bk-card:last-child {
-  border-bottom: none;
-}
-.bk-card:hover {
-  background: #faf8f5;
-}
-
-/* 编号 */
-.bk-num {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  color: var(--color-text-muted);
-  letter-spacing: 0.08em;
-  flex-shrink: 0;
-  padding-top: 0.2rem;
-  width: 1.6rem;
-}
-
-/* 封面 */
-.bk-cover {
-  flex-shrink: 0;
-  width: 3.6rem;
-  height: 5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 2px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #faf8f5;
-}
-.bk-cover-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.bk-cover-placeholder {
-  font-family: var(--font-sans);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--color-accent-light);
-  line-height: 1;
-}
-
-/* 信息区 */
-.bk-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-.bk-title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-.bk-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--color-text);
-  letter-spacing: 0.02em;
-}
-.bk-status {
-  font-size: 0.68rem;
-  padding: 0.08rem 0.45rem;
-  border: 1px solid var(--color-accent-light);
-  border-radius: 3px;
-  color: var(--color-accent);
-  flex-shrink: 0;
-}
-.bk-author {
-  font-size: 0.82rem;
-  color: var(--color-text-secondary);
-}
-.bk-meta {
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.bk-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-.bk-note {
-  font-size: 0.84rem;
-  color: var(--color-text-secondary);
-  line-height: 1.65;
-  padding-top: 0.1rem;
-}
-.bk-links {
-  font-size: 0.78rem;
-  padding-top: 0.1rem;
-}
-.bk-link-pending {
-  color: var(--color-text-muted);
-  font-style: italic;
+/* 空状态（书籍页使用） */
+.bk-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
+  grid-column: 1 / -1;
 }
 
 /* 尾部 */
@@ -1537,14 +1593,6 @@ ul, ol {
   }
   .bk-stat-item:nth-child(2)::after {
     display: none;
-  }
-  .bk-card {
-    flex-direction: column;
-    gap: 0.6rem;
-    padding: 1rem;
-  }
-  .bk-num {
-    padding-top: 0;
   }
   .bk-page-title {
     font-size: 1.5rem;
