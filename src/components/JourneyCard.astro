@@ -1,29 +1,78 @@
 ---
-export interface Props {
-  index: number;
-  title: string;
+interface City {
+  id: string;
+  name: string;
   type: string;
-  date: string;
+  coordinates: [number, number];
   summary: string;
-  story?: string;
-  lat: number;
-  lng: number;
+  districts: string[];
 }
-const { index, title, type, date, summary, story } = Astro.props;
+
+interface Province {
+  province: string;
+  visited: boolean;
+  coordinates: [number, number];
+  cities: City[];
+}
+
+export interface Props {
+  journeys: Province[];
+}
+
+const { journeys = [] } = Astro.props;
 ---
 
-<div class="jn-card">
-  <div class="jn-card-header">
-    <span class="jn-num">{String(index).padStart(2, "0")}</span>
-    <span class="jn-title">{title}</span>
-    <span class="jn-type">{type}</span>
-  </div>
-  <div class="jn-date">{date}</div>
-  <div class="jn-summary">{summary}</div>
-  {story && (
-    <details class="jn-story">
-      <summary>展开</summary>
-      <p>{story}</p>
+<div class="jn-index" data-journey-index>
+  {journeys.map((province, provinceIndex) => (
+    <details
+      class="jn-province"
+      data-province={province.province}
+      data-province-index={provinceIndex}
+      open={provinceIndex === 0}
+    >
+      <summary class="jn-province-row" data-province-trigger={province.province}>
+        <span class="jn-index-num">{String(provinceIndex + 1).padStart(2, "0")}</span>
+        <span class="jn-index-name">{province.province}</span>
+        <span class="jn-index-meta">{province.cities.length} 个城市</span>
+        <span class="jn-visited-flag">{province.visited ? "visited" : "unvisited"}</span>
+      </summary>
+      <div class="jn-city-list">
+        {province.cities.map((city, cityIndex) => (
+          <details class="jn-city" data-city-id={city.id}>
+            <summary
+              class="jn-city-row"
+              data-place-id={city.id}
+              data-province-name={province.province}
+            >
+              <span class="jn-index-num">
+                {String(provinceIndex + 1).padStart(2, "0")}.{String(cityIndex + 1).padStart(2, "0")}
+              </span>
+              <span class="jn-index-name">{city.name}</span>
+              <span class:list={["jn-type", `jn-type-${city.type}`]}>{city.type}</span>
+            </summary>
+            <div class="jn-city-body">
+              <div class="jn-field">
+                <span class="jn-field-label">坐标</span>
+                <span>{city.coordinates[0].toFixed(4)}, {city.coordinates[1].toFixed(4)}</span>
+              </div>
+              <div class="jn-field">
+                <span class="jn-field-label">摘要</span>
+                <span>{city.summary}</span>
+              </div>
+              <div class="jn-districts">
+                <span class="jn-field-label">区县</span>
+                {city.districts.length > 0 ? (
+                  <ul>
+                    {city.districts.map((district) => <li>{district}</li>)}
+                  </ul>
+                ) : (
+                  <span class="jn-pending">区/县信息待补充</span>
+                )}
+              </div>
+            </div>
+          </details>
+        ))}
+      </div>
     </details>
-  )}
+  ))}
 </div>

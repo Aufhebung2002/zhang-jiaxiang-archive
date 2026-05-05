@@ -3,42 +3,46 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import JourneyMap from "../components/JourneyMap.astro";
 import JourneyCard from "../components/JourneyCard.astro";
 import journeys from "../data/journeys.json";
+
+const totalProvinces = journeys.length;
+const totalCities = journeys.reduce((sum, province) => sum + province.cities.length, 0);
+const visitedProvinceNames = journeys.map((province) => province.province).join(" / ");
 ---
 
 <BaseLayout>
-  <!-- 页面头部 -->
   <section class="jn-header">
-    <p class="jn-overline">JOURNEY · NO. 003</p>
+    <p class="jn-overline">JOURNEY ARCHIVE NO. 003</p>
     <h1 class="jn-page-title">旅程地图</h1>
-    <p class="jn-page-intro">这是一张记录成长、生活、求学、工作和旅行节点的个人空间档案。它不只是旅行打卡，而是经历和记忆的地图索引。</p>
+    <p class="jn-page-intro">
+      以省、市、区县为索引，记录成长、生活、求学、工作与旅行经过的空间档案。
+    </p>
   </section>
 
-  <!-- 地图 -->
+  <section class="jn-dossier-summary" aria-label="旅程地图统计">
+    <div class="jn-stat">
+      <span class="jn-stat-label">已记录省级</span>
+      <strong>{String(totalProvinces).padStart(2, "0")}</strong>
+    </div>
+    <div class="jn-stat">
+      <span class="jn-stat-label">已记录城市</span>
+      <strong>{String(totalCities).padStart(2, "0")}</strong>
+    </div>
+    <div class="jn-stat jn-stat-wide">
+      <span class="jn-stat-label">已去过省份</span>
+      <span>{visitedProvinceNames}</span>
+    </div>
+  </section>
+
   <JourneyMap journeys={journeys} />
 
-  <!-- 地点列表 -->
   <section>
     <div class="section-label">
-      <span class="section-label-text">LOCATIONS</span>
+      <span class="section-label-text">GEOGRAPHIC INDEX</span>
       <span class="section-label-line"></span>
     </div>
-    <div class="jn-list">
-      {journeys.map((j, i) => (
-        <JourneyCard
-          index={i + 1}
-          title={j.title}
-          type={j.type}
-          date={j.date}
-          summary={j.summary}
-          story={j.story}
-          lat={j.lat}
-          lng={j.lng}
-        />
-      ))}
-    </div>
+    <JourneyCard journeys={journeys} />
   </section>
 
-  <!-- 类型说明 -->
   <section class="jn-legend">
     <div class="section-label">
       <span class="section-label-text">LEGEND</span>
@@ -46,16 +50,23 @@ import journeys from "../data/journeys.json";
     </div>
     <div class="jn-legend-grid">
       <div class="jn-legend-item">
-        <span class="jn-legend-marker" style="background: var(--color-accent);"></span>
+        <span class="jn-legend-marker jn-legend-marker-main"></span>
         <span class="jn-legend-label">主线城市</span>
         <span class="jn-legend-desc">长期生活、学习、工作相关地点</span>
       </div>
       <div class="jn-legend-item">
-        <span class="jn-legend-marker" style="background: var(--color-accent-light);"></span>
+        <span class="jn-legend-marker jn-legend-marker-travel"></span>
         <span class="jn-legend-label">旅行城市</span>
         <span class="jn-legend-desc">阶段性旅行和体验世界的节点</span>
       </div>
+      <div class="jn-legend-item">
+        <span class="jn-legend-marker jn-legend-marker-pending"></span>
+        <span class="jn-legend-label">途经 / 待补充</span>
+        <span class="jn-legend-desc">只保留档案占位，等待后续补充</span>
+      </div>
     </div>
-    <p class="jn-legend-note">后续会继续补充北京、杭州等地点。</p>
+    <p class="jn-legend-note">
+      当前仓库未发现中国省级边界 GeoJSON，省份 visited / unvisited 暂以统计条、图例和目录状态表达。
+    </p>
   </section>
 </BaseLayout>

@@ -1,22 +1,248 @@
 [
   {
-    "id": "zhengzhou",
-    "title": "郑州",
-    "lat": 34.7466,
-    "lng": 113.6254,
-    "type": "主线城市",
-    "date": "长期",
-    "summary": "成长、生活、求学、工作的主线。",
-    "story": "郑州是我人生地图中的主轴城市。"
+    "province": "北京市",
+    "visited": true,
+    "coordinates": [39.9042, 116.4074],
+    "cities": [
+      {
+        "id": "beijing-beijing",
+        "name": "北京市",
+        "type": "主线城市",
+        "coordinates": [39.9042, 116.4074],
+        "summary": "主线经历相关城市。",
+        "districts": []
+      }
+    ]
   },
   {
-    "id": "shanghai",
-    "title": "上海",
-    "lat": 31.2304,
-    "lng": 121.4737,
-    "type": "旅行城市",
-    "date": "待补充",
-    "summary": "旅行和探索体验世界的节点。",
-    "story": "这里后续补充上海旅行故事。"
+    "province": "河南省",
+    "visited": true,
+    "coordinates": [34.7657, 113.7536],
+    "cities": [
+      {
+        "id": "henan-zhengzhou",
+        "name": "郑州市",
+        "type": "主线城市",
+        "coordinates": [34.7466, 113.6254],
+        "summary": "成长、生活、求学、工作的主线。",
+        "districts": []
+      },
+      {
+        "id": "henan-kaifeng",
+        "name": "开封市",
+        "type": "旅行城市",
+        "coordinates": [34.7972, 114.3076],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "henan-luoyang",
+        "name": "洛阳市",
+        "type": "旅行城市",
+        "coordinates": [34.6197, 112.454],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "henan-xinxiang",
+        "name": "新乡市",
+        "type": "旅行城市",
+        "coordinates": [35.303, 113.9268],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "henan-puyang",
+        "name": "濮阳市",
+        "type": "旅行城市",
+        "coordinates": [35.7619, 115.0292],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "henan-zhoukou",
+        "name": "周口市",
+        "type": "旅行城市",
+        "coordinates": [33.6258, 114.6969],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "henan-anyang",
+        "name": "安阳市",
+        "type": "旅行城市",
+        "coordinates": [36.0976, 114.3924],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "henan-luohe",
+        "name": "漯河市",
+        "type": "旅行城市",
+        "coordinates": [33.5815, 114.0168],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "内蒙古自治区",
+    "visited": true,
+    "coordinates": [40.8175, 111.7656],
+    "cities": [
+      {
+        "id": "inner-mongolia-hohhot",
+        "name": "呼和浩特市",
+        "type": "旅行城市",
+        "coordinates": [40.8426, 111.7492],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "湖北省",
+    "visited": true,
+    "coordinates": [30.5454, 114.3423],
+    "cities": [
+      {
+        "id": "hubei-wuhan",
+        "name": "武汉市",
+        "type": "旅行城市",
+        "coordinates": [30.5928, 114.3055],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "浙江省",
+    "visited": true,
+    "coordinates": [30.2674, 120.1528],
+    "cities": [
+      {
+        "id": "zhejiang-hangzhou",
+        "name": "杭州市",
+        "type": "旅行城市",
+        "coordinates": [30.2741, 120.1551],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "zhejiang-shaoxing",
+        "name": "绍兴市",
+        "type": "旅行城市",
+        "coordinates": [30.0302, 120.5802],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "湖南省",
+    "visited": true,
+    "coordinates": [28.1127, 112.9838],
+    "cities": [
+      {
+        "id": "hunan-zhangjiajie",
+        "name": "张家界市",
+        "type": "旅行城市",
+        "coordinates": [29.1171, 110.4792],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "山东省",
+    "visited": true,
+    "coordinates": [36.6683, 117.0208],
+    "cities": [
+      {
+        "id": "shandong-qingdao",
+        "name": "青岛市",
+        "type": "旅行城市",
+        "coordinates": [36.0671, 120.3826],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "江苏省",
+    "visited": true,
+    "coordinates": [32.0603, 118.7969],
+    "cities": [
+      {
+        "id": "jiangsu-taizhou",
+        "name": "泰州市",
+        "type": "旅行城市",
+        "coordinates": [32.4555, 119.9229],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "jiangsu-yangzhou",
+        "name": "扬州市",
+        "type": "旅行城市",
+        "coordinates": [32.3947, 119.4127],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "青海省",
+    "visited": true,
+    "coordinates": [36.6209, 101.7802],
+    "cities": [
+      {
+        "id": "qinghai-xining",
+        "name": "西宁市",
+        "type": "旅行城市",
+        "coordinates": [36.6171, 101.7782],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "qinghai-haixi",
+        "name": "海西蒙古族藏族自治州",
+        "type": "旅行城市",
+        "coordinates": [37.3771, 97.3712],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
+  },
+  {
+    "province": "甘肃省",
+    "visited": true,
+    "coordinates": [36.0611, 103.8343],
+    "cities": [
+      {
+        "id": "gansu-lanzhou",
+        "name": "兰州市",
+        "type": "旅行城市",
+        "coordinates": [36.0611, 103.8343],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "gansu-jiuquan",
+        "name": "酒泉市",
+        "type": "旅行城市",
+        "coordinates": [39.7326, 98.4943],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      },
+      {
+        "id": "gansu-zhangye",
+        "name": "张掖市",
+        "type": "旅行城市",
+        "coordinates": [38.9259, 100.4498],
+        "summary": "已到访城市，区县信息待补充。",
+        "districts": []
+      }
+    ]
   }
 ]

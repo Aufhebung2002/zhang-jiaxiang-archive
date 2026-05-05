@@ -1,29 +1,40 @@
 ---
 import "leaflet/dist/leaflet.css";
 
-interface Journey {
+interface City {
   id: string;
-  title: string;
-  lat: number;
-  lng: number;
+  name: string;
   type: string;
-  date: string;
+  coordinates: [number, number];
   summary: string;
+  districts: string[];
+}
+
+interface Province {
+  province: string;
+  visited: boolean;
+  coordinates: [number, number];
+  cities: City[];
 }
 
 export interface Props {
-  journeys: Journey[];
+  journeys: Province[];
 }
 
 const { journeys = [] } = Astro.props;
 const journeysJson = JSON.stringify(journeys);
+const cityCount = journeys.reduce((sum, province) => sum + province.cities.length, 0);
 ---
 
 <div class="journey-map-wrapper">
-  <div id="journey-map" style="height: 420px; width: 100%;"></div>
+  <div class="journey-map-toolbar" aria-label="地图状态">
+    <span data-province-layer-status>省界数据：尝试加载</span>
+    <span>城市标记：{cityCount} 个</span>
+  </div>
+  <div id="journey-map"></div>
   <noscript>
     <div class="journey-map-fallback">
-      <p>地图需要 JavaScript 支持。地点列表如下方所示。</p>
+      <p>地图需要 JavaScript 支持。地点档案索引见下方列表。</p>
     </div>
   </noscript>
 </div>
@@ -33,85 +44,313 @@ const journeysJson = JSON.stringify(journeys);
 <script>
   import L from "leaflet";
 
+  const TYPE_CLASS = {
+    "主线城市": "main",
+    "旅行城市": "travel",
+    "途经城市": "pending",
+    "待补充": "pending",
+  };
+
+  const PROVINCE_ALIASES = {
+    北京: "北京市",
+    天津: "天津市",
+    上海: "上海市",
+    重庆: "重庆市",
+    内蒙古: "内蒙古自治区",
+    广西: "广西壮族自治区",
+    西藏: "西藏自治区",
+    宁夏: "宁夏回族自治区",
+    新疆: "新疆维吾尔自治区",
+    香港: "香港特别行政区",
+    澳门: "澳门特别行政区",
+  };
+
+  function flattenCities(journeys) {
+    return journeys.flatMap(function (province) {
+      return province.cities.map(function (city) {
+        return {
+          id: city.id,
+          name: city.name,
+          type: city.type || "待补充",
+          coordinates: city.coordinates,
+          summary: city.summary,
+          province: province.province,
+        };
+      });
+    });
+  }
+
+  function markerIcon(type, active) {
+    const markerClass = TYPE_CLASS[type] || "pending";
+    return L.divIcon({
+      className: `journey-marker journey-marker-${markerClass}${active ? " is-active" : ""}`,
+      html: "<span></span>",
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
+      popupAnchor: [0, -18],
+    });
+  }
+
+  function getProvinceName(properties) {
+    if (!properties) return "";
+    const raw =
+      properties.name ||
+      properties.NAME ||
+      properties.fullname ||
+      properties.fullName ||
+      properties.province ||
+      properties.Province ||
+      properties.prov_name ||
+      properties.adname ||
+      properties.NAME_CHN ||
+      properties["省"] ||
+      properties["省份"] ||
+      "";
+    const name = String(raw).trim();
+    return PROVINCE_ALIASES[name] || name;
+  }
+
+  function setProvinceLayerStatus(text) {
+    const status = document.querySelector("[data-province-layer-status]");
+    if (status) status.textContent = text;
+  }
+
+  function setActiveListItem(placeId, provinceName) {
+    document.querySelectorAll("[data-place-id]").forEach(function (row) {
+      row.classList.toggle("is-active", row.getAttribute("data-place-id") === placeId);
+    });
+
+    const cityDetails = document.querySelector(`[data-city-id="${placeId}"]`);
+    if (cityDetails) cityDetails.setAttribute("open", "");
+
+    const provinceDetails = document.querySelector(`[data-province="${provinceName}"]`);
+    if (provinceDetails) provinceDetails.setAttribute("open", "");
+  }
+
+  function expandProvince(provinceName) {
+    const provinceDetails = document.querySelector(`[data-province="${provinceName}"]`);
+    if (provinceDetails) provinceDetails.setAttribute("open", "");
+  }
+
   function initMap() {
-    var mapEl = document.getElementById("journey-map");
-    if (!mapEl) {
-      console.warn("[JourneyMap] container not found");
-      return;
-    }
+    const mapEl = document.getElementById("journey-map");
+    const dataEl = document.getElementById("journey-map-data");
+    if (!mapEl || !dataEl) return;
 
-    var dataEl = document.getElementById("journey-map-data");
-    var journeys = [];
-
+    let journeys = [];
     try {
-      var raw = dataEl ? dataEl.textContent || "" : "";
-      journeys = JSON.parse(raw || "[]");
+      journeys = JSON.parse(dataEl.textContent || "[]");
     } catch (error) {
-      console.warn("[JourneyMap] JSON 数据解析失败", error);
-      journeys = [];
+      console.warn("[JourneyMap] 旅程数据解析失败", error);
       return;
     }
 
-    if (!journeys || journeys.length === 0) {
-      console.warn("[JourneyMap] 旅程数据为空");
-      return;
+    const cities = flattenCities(journeys);
+    if (!cities.length) return;
+
+    const visitedProvinces = new Map(
+      journeys.map(function (province) {
+        return [province.province, province];
+      })
+    );
+
+    const map = L.map("journey-map", {
+      center: [34.6, 108.9],
+      zoom: 5,
+      scrollWheelZoom: true,
+    });
+
+    map.createPane("provincePane");
+    map.getPane("provincePane").style.zIndex = "360";
+    map.getPane("provincePane").style.pointerEvents = "auto";
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 18,
+    }).addTo(map);
+
+    let activeProvinceLayer = null;
+    let provinceLayer = null;
+    let hasWarnedMissingGeoJson = false;
+    const markers = new Map();
+    let activeId = "";
+
+    function provinceStyle(feature) {
+      const provinceName = getProvinceName(feature.properties);
+      const isVisited = visitedProvinces.has(provinceName);
+      return {
+        pane: "provincePane",
+        color: isVisited ? "#8a5a2b" : "#c9bea9",
+        weight: isVisited ? 1.1 : 0.65,
+        opacity: isVisited ? 0.72 : 0.5,
+        fillColor: isVisited ? "#b78343" : "#eee8dc",
+        fillOpacity: isVisited ? 0.34 : 0.18,
+      };
     }
 
-    try {
-      // 创建自定义图标
-      var markerIcon = L.icon({
-        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41],
+    function highlightProvince(layer, feature) {
+      if (activeProvinceLayer && provinceLayer) {
+        provinceLayer.resetStyle(activeProvinceLayer);
+      }
+      activeProvinceLayer = layer;
+      const provinceName = getProvinceName(feature.properties);
+      const isVisited = visitedProvinces.has(provinceName);
+      layer.setStyle({
+        color: isVisited ? "#70421e" : "#a99a83",
+        weight: isVisited ? 2 : 1.2,
+        fillOpacity: isVisited ? 0.48 : 0.25,
+      });
+      layer.bringToFront();
+    }
+
+    function addProvinceLayer() {
+      fetch("/data/china-provinces.geojson")
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(function (geojson) {
+          provinceLayer = L.geoJSON(geojson, {
+            pane: "provincePane",
+            style: provinceStyle,
+            onEachFeature: function (feature, layer) {
+              const provinceName = getProvinceName(feature.properties);
+              const isVisited = visitedProvinces.has(provinceName);
+
+              layer.bindTooltip(provinceName || "未命名省份", {
+                direction: "top",
+                sticky: true,
+                className: "journey-province-tooltip",
+              });
+
+              layer.on({
+                mouseover: function () {
+                  layer.setStyle({
+                    weight: isVisited ? 1.8 : 1.1,
+                    fillOpacity: isVisited ? 0.44 : 0.24,
+                  });
+                },
+                mouseout: function () {
+                  if (layer !== activeProvinceLayer && provinceLayer) {
+                    provinceLayer.resetStyle(layer);
+                  }
+                },
+                click: function () {
+                  if (!isVisited) return;
+                  expandProvince(provinceName);
+                  highlightProvince(layer, feature);
+                  map.fitBounds(layer.getBounds().pad(0.08), { maxZoom: 6 });
+                },
+              });
+            },
+          }).addTo(map);
+
+          setProvinceLayerStatus("省界数据：已加载");
+        })
+        .catch(function (error) {
+          setProvinceLayerStatus("省界数据：未提供");
+          if (!hasWarnedMissingGeoJson) {
+            console.warn(
+              "[JourneyMap] 未加载省级 GeoJSON。请提供 public/data/china-provinces.geojson；地图将继续显示城市 marker。",
+              error
+            );
+            hasWarnedMissingGeoJson = true;
+          }
+        });
+    }
+
+    function activateCity(placeId, source) {
+      const city = cities.find(function (item) {
+        return item.id === placeId;
+      });
+      if (!city) return;
+
+      activeId = city.id;
+      markers.forEach(function (marker, id) {
+        const markerCity = cities.find(function (item) {
+          return item.id === id;
+        });
+        marker.setIcon(markerIcon(markerCity.type, id === activeId));
       });
 
-      var map = L.map("journey-map", {
-        center: [32.6, 117.6],
-        zoom: 6,
-        scrollWheelZoom: true,
-      });
+      const zoom = city.type === "待补充" || city.type === "途经城市" ? 9 : 10;
+      map.flyTo(city.coordinates, zoom, { duration: 0.65 });
+      setActiveListItem(city.id, city.province);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18,
-      }).addTo(map);
-
-      var markers = [];
-      journeys.forEach(function (j) {
-        var marker = L.marker([j.lat, j.lng], { icon: markerIcon }).addTo(map);
-        marker.bindPopup(
-          '<div style="font-family: system-ui, sans-serif; max-width: 220px;">' +
-            '<strong style="font-size: 0.95rem;">' + j.title + "</strong>" +
-            '<span style="display: inline-block; margin-left: 0.4rem; font-size: 0.7rem; color: #8b6f47; border: 1px solid #c4a97d; padding: 0.05rem 0.4rem; border-radius: 3px;">' +
-            j.type +
-            "</span>" +
-            '<div style="font-size: 0.75rem; color: #9c9285; margin-top: 0.3rem;">' +
-            j.date +
-            "</div>" +
-            '<div style="font-size: 0.82rem; color: #6b6156; margin-top: 0.35rem; line-height: 1.5;">' +
-            j.summary +
-            "</div>" +
-            "</div>"
-        );
-        markers.push(marker);
-      });
-
-      if (markers.length > 1) {
-        var group = L.featureGroup(markers);
-        map.fitBounds(group.getBounds().pad(0.15));
+      if (source !== "marker") {
+        const marker = markers.get(city.id);
+        if (marker) marker.openPopup();
       }
 
-      setTimeout(function () {
-        map.invalidateSize();
-      }, 100);
-    } catch (e) {
-      console.warn("[JourneyMap] 地图初始化出错", e);
+      window.dispatchEvent(
+        new CustomEvent("journey:city-active", {
+          detail: { id: city.id, province: city.province },
+        })
+      );
     }
+
+    addProvinceLayer();
+
+    cities.forEach(function (city) {
+      const marker = L.marker(city.coordinates, {
+        icon: markerIcon(city.type, false),
+        title: `${city.province} / ${city.name}`,
+      }).addTo(map);
+
+      marker.bindPopup(
+        `<div class="journey-popup">
+          <strong>${city.name}</strong>
+          <span>${city.type}</span>
+          <p>${city.province}</p>
+          <p>${city.summary}</p>
+        </div>`
+      );
+
+      marker.on("click", function () {
+        activateCity(city.id, "marker");
+      });
+      markers.set(city.id, marker);
+    });
+
+    const group = L.featureGroup(Array.from(markers.values()));
+    map.fitBounds(group.getBounds().pad(0.12));
+
+    document.addEventListener("click", function (event) {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const cityRow = target.closest("[data-place-id]");
+      if (cityRow) {
+        activateCity(cityRow.getAttribute("data-place-id"), "list");
+        return;
+      }
+
+      const provinceRow = target.closest("[data-province-trigger]");
+      if (provinceRow) {
+        const provinceName = provinceRow.getAttribute("data-province-trigger");
+        const province = visitedProvinces.get(provinceName);
+        if (!province) return;
+        expandProvince(provinceName);
+
+        if (provinceLayer) {
+          provinceLayer.eachLayer(function (layer) {
+            const layerProvinceName = getProvinceName(layer.feature && layer.feature.properties);
+            if (layerProvinceName === provinceName) {
+              highlightProvince(layer, layer.feature);
+              map.fitBounds(layer.getBounds().pad(0.08), { maxZoom: 6 });
+            }
+          });
+        } else if (province.coordinates) {
+          map.flyTo(province.coordinates, 6, { duration: 0.65 });
+        }
+      }
+    });
+
+    setTimeout(function () {
+      map.invalidateSize();
+    }, 100);
   }
 
   if (document.readyState === "loading") {
@@ -120,18 +359,3 @@ const journeysJson = JSON.stringify(journeys);
     initMap();
   }
 </script>
-
-<style is:global>
-  .journey-map-wrapper {
-    border: 1px solid var(--color-border, #e8e4dc);
-    border-radius: var(--radius, 5px);
-    overflow: hidden;
-    margin-bottom: 1.8rem;
-  }
-  .journey-map-fallback {
-    text-align: center;
-    padding: 3rem 1.2rem;
-    color: var(--color-text-muted, #9c9285);
-    font-size: 0.9rem;
-  }
-</style>

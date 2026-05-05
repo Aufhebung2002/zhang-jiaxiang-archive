@@ -1,16 +1,33 @@
 ---
 import profile from "../data/profile.json";
+
+const currentPath = Astro.url.pathname;
+const navItems = [
+  { href: "/about", label: "关于我", code: "FILE 01" },
+  { href: "/journeys", label: "旅程地图", code: "FILE 02" },
+  { href: "/books", label: "我的书架", code: "FILE 03" },
+  { href: "/links", label: "网站收藏", code: "FILE 04" },
+  { href: "/notes", label: "随笔", code: "FILE 05" },
+];
 ---
 
 <header class="site-header">
   <div class="header-inner">
-    <a href="/" class="site-logo">{profile.siteTitle}</a>
-    <nav class="site-nav">
-      <a href="/about">关于我</a>
-      <a href="/journeys">旅程地图</a>
-      <a href="/books">我的书架</a>
-      <a href="/links">网站收藏</a>
-      <a href="/notes">随笔</a>
+    <a href="/" class="site-logo" aria-label={`${profile.siteTitle} 首页`}>
+      <span class="site-logo-mark">PRIVATE ARCHIVE / ZJX-001</span>
+      <span class="site-logo-title">{profile.siteTitle}</span>
+      <span class="site-logo-note">DIGITAL DOSSIER · MAINTAINED INDEX</span>
+    </a>
+    <nav class="site-nav" aria-label="档案目录导航">
+      {navItems.map((item) => {
+        const isActive = currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+        return (
+          <a href={item.href} class={isActive ? "active" : undefined}>
+            <span class="site-nav-code">{item.code}</span>
+            <span>{item.label}</span>
+          </a>
+        );
+      })}
     </nav>
   </div>
 </header>
