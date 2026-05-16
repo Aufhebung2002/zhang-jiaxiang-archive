@@ -332,6 +332,18 @@ const coverMap = JSON.stringify({
     }
 
     // ── 视口级 fixed 定位 ──
+    function syncSelectedCardState() {
+      wallGrid.querySelectorAll<HTMLElement>(".bw-card").forEach((card) => {
+        const selected = !!pinnedId && card.dataset.id === pinnedId;
+        card.classList.toggle("is-selected", selected);
+        if (selected) {
+          card.setAttribute("data-selected", "true");
+        } else {
+          card.removeAttribute("data-selected");
+        }
+      });
+    }
+
     function positionViewportPanel(card: HTMLElement) {
       if (currentView !== "wall" || !card.isConnected) {
         hideViewportPanel({ force: true });
@@ -341,7 +353,22 @@ const coverMap = JSON.stringify({
       const token = ++detailPanelToken;
 
       if (!isDesktop) {
-        viewportPanel.style.cssText = "position:static;width:100%;max-width:100%;display:block;margin-top:0.5rem;box-shadow:none;border-radius:0;border-left:none;border-right:none;";
+        viewportPanel.style.cssText = [
+          "position:fixed",
+          "left:1rem",
+          "right:1rem",
+          "bottom:1rem",
+          "top:auto",
+          "width:auto",
+          "max-width:none",
+          "max-height:min(70vh,26rem)",
+          "overflow:auto",
+          "display:block",
+          "z-index:120",
+          "box-shadow:0 18px 60px rgba(70,48,24,0.22)",
+          "border:1px solid var(--color-border-strong)",
+          "border-radius:6px"
+        ].join(";");
         viewportPanel.hidden = false;
         try { connectorLayer.hidden = true; } catch (_) {}
         return;
@@ -421,6 +448,7 @@ const coverMap = JSON.stringify({
       detailPanelToken++;
       pinnedId = null;
       currentHoverId = null;
+      syncSelectedCardState();
       viewportPanel.hidden = true;
       viewportPanel.style.cssText = "";
       try { connectorLayer.hidden = true; } catch (_) {}
@@ -432,6 +460,7 @@ const coverMap = JSON.stringify({
 
     function unpinDetail() {
       pinnedId = null;
+      syncSelectedCardState();
       const card = currentHoverId ? wallGrid.querySelector(`[data-id="${currentHoverId}"]`) as HTMLElement : null;
       if (card) {
         const book = findBook(currentHoverId!);
@@ -459,6 +488,7 @@ const coverMap = JSON.stringify({
           if (pinnedId === id) return;
           pinnedId = id;
           currentHoverId = id;
+          syncSelectedCardState();
           const book = findBook(id); if (!book) return;
           renderPanelContent(book);
           positionViewportPanel(card);
@@ -660,14 +690,67 @@ const coverMap = JSON.stringify({
   .bw-card {
     position: relative; overflow: hidden; border-radius: 3px;
     cursor: pointer; will-change: transform; transform-origin: center center;
-    transition: transform 0.28s ease-out, box-shadow 0.35s;
+    transition: transform 0.28s ease-out, box-shadow 0.35s, border-color 0.2s ease, filter 0.2s ease;
     background: #e8e4dc;
     border: 1px solid rgba(180, 170, 150, 0.25);
   }
-  .bw-card:hover {
-    box-shadow: 0 10px 36px rgba(100, 80, 50, 0.16);
-    z-index: 30 !important;
-    transform: scale(1.04);
+  .bw-card::before,
+  .bw-card::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .bw-card::before {
+    inset: 0;
+    z-index: 2;
+    box-shadow: inset 0 0 0 1px rgba(116, 72, 33, 0.28);
+  }
+  .bw-card::after {
+    right: 0.42rem;
+    top: 0.42rem;
+    z-index: 3;
+    width: 0.58rem;
+    height: 0.58rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(255, 253, 247, 0.78);
+    transform: scale(0.72);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .bw-card:hover {
+      box-shadow: 0 10px 36px rgba(100, 80, 50, 0.16);
+      border-color: rgba(116, 72, 33, 0.5);
+      z-index: 30 !important;
+      transform: scale(1.04);
+    }
+    .bw-card:hover::before {
+      opacity: 1;
+    }
+    .bw-card:hover .bw-card-img {
+      filter: contrast(1.035) saturate(1.03);
+    }
+  }
+  .bw-card.is-selected {
+    border-color: rgba(116, 72, 33, 0.82);
+    box-shadow:
+      0 14px 44px rgba(70, 48, 24, 0.22),
+      0 0 0 2px rgba(116, 72, 33, 0.2);
+    z-index: 70 !important;
+  }
+  .bw-card.is-selected::before {
+    opacity: 1;
+    box-shadow:
+      inset 0 0 0 2px rgba(116, 72, 33, 0.76),
+      inset 0 6px 0 rgba(116, 72, 33, 0.5);
+  }
+  .bw-card.is-selected::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .bw-card.is-selected .bw-card-img {
+    filter: contrast(1.04) saturate(1.04) brightness(0.98);
   }
 
   .bw-card[data-size="small"] { grid-column: span 1; grid-row: span 1; }
@@ -682,7 +765,7 @@ const coverMap = JSON.stringify({
 
   .bw-card-img {
     width: 100%; height: 100%; object-fit: cover; display: block;
-    transition: none;
+    transition: filter 0.2s ease;
   }
 
   /* ═══ 视口级浮动详情卡 ═══ */
@@ -702,14 +785,19 @@ const coverMap = JSON.stringify({
 
   @media (max-width: 768px) {
     .book-viewport-detail-panel {
-      position: static;
-      width: 100%;
-      max-width: 100%;
-      box-shadow: none;
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
-      margin-top: 0.5rem;
+      position: fixed;
+      left: 1rem;
+      right: 1rem;
+      bottom: 1rem;
+      top: auto;
+      width: auto;
+      max-width: none;
+      max-height: min(70vh, 26rem);
+      overflow: auto;
+      border: 1px solid var(--color-border-strong);
+      border-radius: 6px;
+      box-shadow: 0 18px 60px rgba(70, 48, 24, 0.22);
+      -webkit-overflow-scrolling: touch;
     }
   }
 
