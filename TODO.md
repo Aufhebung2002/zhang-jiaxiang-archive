@@ -1,47 +1,33 @@
 # TODO
 
-## 我的书架 `/books` 页面
+## 最新已完成
 
-### 已完成
-- [x] 详情卡鼠标移开后不消失 — 已统一隐藏逻辑并本地目测验收通过
-- [x] 切换到列表视图后详情卡残留 — 已清空 inline `display:block` 等样式，避免覆盖 `hidden`
+- [x] 第一轮全站视觉基底改造；
+- [x] Header / Footer 改为更接近纸质档案馆风格；
+- [x] 首页总目录化；
+- [x] `/journeys` 旅程地图数据补充；
+- [x] `/journeys` 支持省-市-区县层级目录；
+- [x] 城市 marker 与列表联动；
+- [x] 点击列表城市可缩放地图并同步高亮；
+- [x] 点击地图 marker 可同步列表展开和高亮；
+- [x] marker hover / click 命中区域修复；
+- [x] 已提交：`a9b564e feat: redesign archive shell and enhance journey map`。
 
-### 最高优先级
-- [ ] 列表视图重做为紧凑书目列表 — 减小封面尺寸/padding/字号，目标 ~70px 卡片高度，整体更像高密度书目目录
+## 当前未完成
 
-### 功能完善
-- [ ] 分页体验优化（翻页后的滚动位置、结果提示、按钮状态）
-- [ ] 书墙 hover 的详情卡定位在边缘书籍时可能超出视口 — clamp 逻辑微调
-- [ ] 列表视图空状态优化（筛选无结果时）
-- [ ] 移动端详情卡样式优化（当前 position:static 回退）
-- [ ] 考虑列表视图的两栏/多栏布局以更好利用宽屏
+- [ ] 提供 `public/data/china-provinces.geojson`；
+- [ ] 启用省级 GeoJSON 面图层；
+- [ ] 在地图上用省份填色直接区分去过省份 / 未去过省份；
+- [ ] 验收省份 hover 显示省名；
+- [ ] 验收点击已去过省份后展开对应省份目录并缩放到省级边界。
 
-### 数据补充
-- [ ] 书目数据清洗（分类、状态、年份、标签一致性）
-- [ ] 补充更多书籍的真实封面 URL（`cover` 字段）
-- [ ] 补充豆瓣链接（`externalLinks.douban`）
-- [ ] 补充阅读笔记（`note` 字段）
+## 稳定回滚点
 
-### 后续功能
-- [ ] 书架页面支持按阅读日期排序
-- [ ] 书墙模式支持"按分类分组"视图
-- [ ] 书籍详情卡增加阅读日期显示
-- [ ] 考虑书籍搜索的防抖处理
+- `b8054cb checkpoint: stabilize archive site before redesign`
+- `a9b564e feat: redesign archive shell and enhance journey map`
 
----
+## 后续建议
 
-## 其他页面
-
-- [ ] 首页：当前稳定，暂无需修改
-- [ ] 关于我：当前稳定
-- [ ] 旅程地图：Leaflet 地图正常，暂无需修改
-- [ ] 网站收藏：当前稳定
-- [ ] 随笔：当前稳定
-
----
-
-## 构建与部署
-
-- [ ] 配置 GitHub Pages / Vercel 自动部署
-- [ ] 添加 favicon
-- [ ] 优化图片加载（WebP 格式、响应式尺寸）
+- 优先补充可靠的中国省级边界 GeoJSON，放置到 `public/data/china-provinces.geojson`。
+- GeoJSON 的 `properties` 里需要能匹配省份名称，例如 `河南省`、`浙江省`、`江苏省`、`青海省`、`甘肃省`、`内蒙古自治区`、`北京市`。
+- 在 GeoJSON 文件加入后，再集中验收 `/journeys` 的省份填色、hover tooltip、点击省份缩放和目录展开。

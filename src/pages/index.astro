@@ -15,9 +15,8 @@ const stats = {
 const archiveEntries = [
   {
     href: "/about",
-    code: "01",
-    serial: "ZJX-A01",
-    type: "PERSONAL DOSSIER",
+    code: "卷一",
+    kind: "个人档案",
     title: "关于我",
     desc: "个人介绍、建站缘起与公开边界",
     status: "已归档",
@@ -25,9 +24,8 @@ const archiveEntries = [
   },
   {
     href: "/journeys",
-    code: "02",
-    serial: "ZJX-G02",
-    type: "GEO ARCHIVE",
+    code: "卷二",
+    kind: "地理索引",
     title: "旅程地图",
     desc: "成长、生活、求学、工作与旅行节点",
     status: "持续补录",
@@ -35,9 +33,8 @@ const archiveEntries = [
   },
   {
     href: "/books",
-    code: "03",
-    serial: "ZJX-B03",
-    type: "BOOK CATALOG",
+    code: "卷三",
+    kind: "阅读目录",
     title: "我的书架",
     desc: "阅读、待读、分类和书目索引",
     status: "重点整理",
@@ -45,9 +42,8 @@ const archiveEntries = [
   },
   {
     href: "/links",
-    code: "04",
-    serial: "ZJX-W04",
-    type: "WEB REFERENCES",
+    code: "卷四",
+    kind: "网络资源",
     title: "网站收藏",
     desc: "思想资源、工具平台与学习入口",
     status: "开放索引",
@@ -55,9 +51,8 @@ const archiveEntries = [
   },
   {
     href: "/notes",
-    code: "05",
-    serial: "ZJX-N05",
-    type: "FIELD NOTES",
+    code: "卷五",
+    kind: "札记手稿",
     title: "随笔",
     desc: "读书笔记、生活观察和阶段性思考",
     status: "缓慢写作",
@@ -65,8 +60,13 @@ const archiveEntries = [
   },
 ];
 
+const maintenanceLog = [
+  { date: "2026-05-04", label: "建档", text: "建立个人数字档案馆的公开入口。" },
+  { date: "2026-05-16", label: "视觉基底", text: "统一纸质档案馆、目录索引和私人知识库的基础气质。" },
+  { date: "长期", label: "持续整理", text: "阅读、旅程、网站收藏与随笔缓慢补录。" },
+];
+
 const collectionFields = [
-  { label: "建档编号", value: "ZJX-ARCHIVE-001" },
   { label: "建档人", value: profile.name },
   { label: "建档时间", value: profile.startedAt },
   { label: "馆藏范围", value: "阅读 / 地图 / 工具 / 随笔 / 个人履历" },
@@ -77,16 +77,11 @@ const collectionFields = [
 
 <BaseLayout>
   <section class="hero archive-cover" aria-labelledby="archive-title">
-    <div class="archive-cover-topline">
-      <span>ARCHIVE INDEX</span>
-      <span>GENERAL CATALOG</span>
-      <span>DOSSIER NO. 001</span>
-    </div>
     <div class="archive-cover-body">
       <div class="archive-cover-main">
-        <p class="hero-overline">PRIVATE KNOWLEDGE ARCHIVE</p>
+        <p class="hero-overline">纸质档案馆 / 私人知识索引 / 长期维护</p>
         <h1 id="archive-title">{profile.siteTitle}</h1>
-        <p class="hero-text">一份关于阅读、旅程、工具、法学学习和个人思考的长期私人档案。</p>
+        <p class="hero-text">一份关于阅读、旅程、工具、法学学习和个人思考的长期私人档案。这里不追求即时表达，而是把重要的经验慢慢编号、归档、复查。</p>
       </div>
       <dl class="archive-cover-fields" aria-label="档案封面信息">
         {collectionFields.map((field) => (
@@ -97,56 +92,70 @@ const collectionFields = [
         ))}
       </dl>
     </div>
-    <div class="archive-cover-summary">
-      <span>摘要</span>
-      <p>它不是即时动态，也不是形象包装，而是把记忆、经验和知识逐步整理成可回望、可检索、可长期维护的目录。</p>
-    </div>
   </section>
 
-  <section class="archive-stats" aria-label="馆藏统计">
-    <div class="stats-caption">
-      <span>COLLECTION LEDGER</span>
-      <span>馆藏数量摘要</span>
+  <section class="archive-ledger" aria-label="馆藏登记">
+    <div class="archive-stats" aria-label="馆藏统计">
+      <div class="stats-caption">
+        <span>馆藏登记</span>
+        <span>馆藏数量摘要</span>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-num">{String(stats.journeys).padStart(2, "0")}</span>
+          <span class="stat-label">地点</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">{String(stats.books).padStart(2, "0")}</span>
+          <span class="stat-label">书目</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">{String(stats.links).padStart(2, "0")}</span>
+          <span class="stat-label">链接</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num">{String(stats.notes).padStart(2, "0")}</span>
+          <span class="stat-label">札记</span>
+        </div>
+      </div>
     </div>
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="stat-num">{String(stats.journeys).padStart(2, "0")}</span>
-        <span class="stat-label">地点</span>
+    <aside class="archive-maintenance" aria-label="近期维护记录">
+      <div class="maintenance-caption">
+        <span>维护记录</span>
+        <span>近期维护记录</span>
       </div>
-      <div class="stat-item">
-        <span class="stat-num">{String(stats.books).padStart(2, "0")}</span>
-        <span class="stat-label">书目</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">{String(stats.links).padStart(2, "0")}</span>
-        <span class="stat-label">链接</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">{String(stats.notes).padStart(2, "0")}</span>
-        <span class="stat-label">札记</span>
-      </div>
-    </div>
+      <ol>
+        {maintenanceLog.map((item) => (
+          <li>
+            <span class="maintenance-date">{item.date}</span>
+            <strong>{item.label}</strong>
+            <span>{item.text}</span>
+          </li>
+        ))}
+      </ol>
+    </aside>
   </section>
 
   <section class="home-index">
     <div class="index-header">
-      <span class="index-label">GENERAL CATALOG / 总目录索引</span>
+      <span class="index-label">总目录索引</span>
       <span class="index-line"></span>
-      <span class="index-status">OPEN SHELF</span>
+      <span class="index-status">开放目录</span>
     </div>
     <nav class="entry-cards archive-directory" aria-label="档案馆总目录">
       {archiveEntries.map((entry) => (
         <a href={entry.href} class="entry-card">
           <span class="entry-num">{entry.code}</span>
-          <span class="entry-serial">{entry.serial}</span>
-          <span class="entry-type">{entry.type}</span>
           <span class="entry-main">
-            <strong class="entry-title">{entry.title}</strong>
+            <span class="entry-title-row">
+              <strong class="entry-title">{entry.title}</strong>
+              <span class="entry-kind">{entry.kind}</span>
+            </span>
             <span class="entry-desc">{entry.desc}</span>
           </span>
           <span class="entry-status">{entry.status}</span>
           <span class="entry-count">{entry.count}</span>
-          <span class="entry-arrow" aria-hidden="true">ENTER</span>
+          <span class="entry-arrow" aria-hidden="true">查看</span>
         </a>
       ))}
     </nav>

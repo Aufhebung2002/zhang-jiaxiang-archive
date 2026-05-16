@@ -34,7 +34,7 @@ const { journeys = [] } = Astro.props;
         <span class="jn-index-num">{String(provinceIndex + 1).padStart(2, "0")}</span>
         <span class="jn-index-name">{province.province}</span>
         <span class="jn-index-meta">{province.cities.length} 个城市</span>
-        <span class="jn-visited-flag">{province.visited ? "visited" : "unvisited"}</span>
+        <span class="jn-visited-flag">{province.visited ? "已点亮" : "未点亮"}</span>
       </summary>
       <div class="jn-city-list">
         {province.cities.map((city, cityIndex) => (

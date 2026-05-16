@@ -28,8 +28,20 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
 
 <div class="journey-map-wrapper">
   <div class="journey-map-toolbar" aria-label="地图状态">
-    <span data-province-layer-status>省界数据：尝试加载</span>
-    <span>城市标记：{cityCount} 个</span>
+    <div class="journey-map-meta">
+      <span data-province-layer-status>省界数据：尝试加载</span>
+      <span>城市标记：{cityCount} 个</span>
+    </div>
+    <div class="journey-map-layer-legend" aria-label="省份点亮图例">
+      <span class="journey-map-legend-item">
+        <span class="journey-map-swatch journey-map-swatch-visited"></span>
+        已点亮省份
+      </span>
+      <span class="journey-map-legend-item">
+        <span class="journey-map-swatch journey-map-swatch-unvisited"></span>
+        未点亮省份
+      </span>
+    </div>
   </div>
   <div id="journey-map"></div>
   <noscript>
@@ -56,6 +68,29 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
     天津: "天津市",
     上海: "上海市",
     重庆: "重庆市",
+    河北: "河北省",
+    山西: "山西省",
+    辽宁: "辽宁省",
+    吉林: "吉林省",
+    黑龙江: "黑龙江省",
+    江苏: "江苏省",
+    浙江: "浙江省",
+    安徽: "安徽省",
+    福建: "福建省",
+    江西: "江西省",
+    山东: "山东省",
+    河南: "河南省",
+    湖北: "湖北省",
+    湖南: "湖南省",
+    广东: "广东省",
+    海南: "海南省",
+    四川: "四川省",
+    贵州: "贵州省",
+    云南: "云南省",
+    陕西: "陕西省",
+    甘肃: "甘肃省",
+    青海: "青海省",
+    台湾: "台湾省",
     内蒙古: "内蒙古自治区",
     广西: "广西壮族自治区",
     西藏: "西藏自治区",
@@ -64,6 +99,43 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
     香港: "香港特别行政区",
     澳门: "澳门特别行政区",
   };
+
+  const FALLBACK_PROVINCES = [
+    { province: "北京市", coordinates: [39.9042, 116.4074] },
+    { province: "天津市", coordinates: [39.3434, 117.3616] },
+    { province: "河北省", coordinates: [38.0428, 114.5149] },
+    { province: "山西省", coordinates: [37.8735, 112.5624] },
+    { province: "内蒙古自治区", coordinates: [40.8175, 111.7656] },
+    { province: "辽宁省", coordinates: [41.8057, 123.4315] },
+    { province: "吉林省", coordinates: [43.8171, 125.3235] },
+    { province: "黑龙江省", coordinates: [45.7422, 126.6617] },
+    { province: "上海市", coordinates: [31.2304, 121.4737] },
+    { province: "江苏省", coordinates: [32.0603, 118.7969] },
+    { province: "浙江省", coordinates: [30.2674, 120.1528] },
+    { province: "安徽省", coordinates: [31.8612, 117.2857] },
+    { province: "福建省", coordinates: [26.0745, 119.2965] },
+    { province: "江西省", coordinates: [28.682, 115.8582] },
+    { province: "山东省", coordinates: [36.6683, 117.0208] },
+    { province: "河南省", coordinates: [34.7657, 113.7536] },
+    { province: "湖北省", coordinates: [30.5454, 114.3423] },
+    { province: "湖南省", coordinates: [28.1127, 112.9838] },
+    { province: "广东省", coordinates: [23.1291, 113.2644] },
+    { province: "广西壮族自治区", coordinates: [22.8155, 108.3275] },
+    { province: "海南省", coordinates: [20.0174, 110.3492] },
+    { province: "重庆市", coordinates: [29.563, 106.5516] },
+    { province: "四川省", coordinates: [30.5728, 104.0668] },
+    { province: "贵州省", coordinates: [26.647, 106.6302] },
+    { province: "云南省", coordinates: [25.0453, 102.7097] },
+    { province: "西藏自治区", coordinates: [29.652, 91.1721] },
+    { province: "陕西省", coordinates: [34.3416, 108.9398] },
+    { province: "甘肃省", coordinates: [36.0611, 103.8343] },
+    { province: "青海省", coordinates: [36.6209, 101.7802] },
+    { province: "宁夏回族自治区", coordinates: [38.4872, 106.2309] },
+    { province: "新疆维吾尔自治区", coordinates: [43.8256, 87.6168] },
+    { province: "台湾省", coordinates: [23.6978, 120.9605] },
+    { province: "香港特别行政区", coordinates: [22.3193, 114.1694] },
+    { province: "澳门特别行政区", coordinates: [22.1987, 113.5439] },
+  ];
 
   function flattenCities(journeys) {
     return journeys.flatMap(function (province) {
@@ -154,6 +226,33 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
       })
     );
 
+    function getProvinceRecord(provinceName) {
+      return visitedProvinces.get(provinceName);
+    }
+
+    function isProvinceVisited(provinceName) {
+      return Boolean(getProvinceRecord(provinceName)?.visited);
+    }
+
+    function getFallbackProvinces() {
+      const provinceMap = new Map(
+        FALLBACK_PROVINCES.map(function (province) {
+          return [province.province, province];
+        })
+      );
+
+      journeys.forEach(function (province) {
+        if (Array.isArray(province.coordinates)) {
+          provinceMap.set(province.province, {
+            province: province.province,
+            coordinates: province.coordinates,
+          });
+        }
+      });
+
+      return Array.from(provinceMap.values());
+    }
+
     const map = L.map("journey-map", {
       center: [34.6, 108.9],
       zoom: 5,
@@ -170,14 +269,16 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
     }).addTo(map);
 
     let activeProvinceLayer = null;
+    let resetActiveProvinceLayer = null;
     let provinceLayer = null;
+    const fallbackProvinceLayers = new Map();
     let hasWarnedMissingGeoJson = false;
     const markers = new Map();
     let activeId = "";
 
     function provinceStyle(feature) {
       const provinceName = getProvinceName(feature.properties);
-      const isVisited = visitedProvinces.has(provinceName);
+      const isVisited = isProvinceVisited(provinceName);
       return {
         pane: "provincePane",
         color: isVisited ? "#8a5a2b" : "#c9bea9",
@@ -188,19 +289,95 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
       };
     }
 
-    function highlightProvince(layer, feature) {
-      if (activeProvinceLayer && provinceLayer) {
-        provinceLayer.resetStyle(activeProvinceLayer);
+    function fallbackProvinceStyle(province, active) {
+      const isVisited = isProvinceVisited(province.province);
+      return {
+        pane: "provincePane",
+        radius: active ? (isVisited ? 28 : 22) : isVisited ? 24 : 19,
+        color: isVisited ? "#8a5a2b" : "#c9bea9",
+        weight: active ? 2 : 0.9,
+        opacity: isVisited ? 0.72 : 0.5,
+        fillColor: isVisited ? "#b78343" : "#eee8dc",
+        fillOpacity: active ? (isVisited ? 0.46 : 0.28) : isVisited ? 0.28 : 0.16,
+      };
+    }
+
+    function setActiveProvinceLayer(layer, applyActiveStyle, resetStyle) {
+      if (activeProvinceLayer && resetActiveProvinceLayer) {
+        resetActiveProvinceLayer(activeProvinceLayer);
       }
+
       activeProvinceLayer = layer;
-      const provinceName = getProvinceName(feature.properties);
-      const isVisited = visitedProvinces.has(provinceName);
-      layer.setStyle({
-        color: isVisited ? "#70421e" : "#a99a83",
-        weight: isVisited ? 2 : 1.2,
-        fillOpacity: isVisited ? 0.48 : 0.25,
-      });
+      resetActiveProvinceLayer = resetStyle;
+      applyActiveStyle(layer);
       layer.bringToFront();
+    }
+
+    function highlightProvince(layer, feature) {
+      const provinceName = getProvinceName(feature.properties);
+      const isVisited = isProvinceVisited(provinceName);
+      setActiveProvinceLayer(
+        layer,
+        function (activeLayer) {
+          activeLayer.setStyle({
+            color: isVisited ? "#70421e" : "#a99a83",
+            weight: isVisited ? 2 : 1.2,
+            fillOpacity: isVisited ? 0.48 : 0.25,
+          });
+        },
+        function (activeLayer) {
+          if (provinceLayer) {
+            provinceLayer.resetStyle(activeLayer);
+          }
+        }
+      );
+    }
+
+    function highlightFallbackProvince(layer, province) {
+      setActiveProvinceLayer(
+        layer,
+        function (activeLayer) {
+          activeLayer.setStyle(fallbackProvinceStyle(province, true));
+        },
+        function (activeLayer) {
+          activeLayer.setStyle(fallbackProvinceStyle(province, false));
+        }
+      );
+    }
+
+    function addFallbackProvinceLayer() {
+      const fallbackLayer = L.layerGroup([], { pane: "provincePane" }).addTo(map);
+      getFallbackProvinces().forEach(function (province) {
+        const isVisited = isProvinceVisited(province.province);
+        const layer = L.circleMarker(province.coordinates, fallbackProvinceStyle(province, false))
+          .bindTooltip(`${province.province}｜${isVisited ? "已点亮" : "未点亮"}`, {
+            direction: "top",
+            sticky: true,
+            className: "journey-province-tooltip",
+          })
+          .addTo(fallbackLayer);
+
+        layer.on({
+          mouseover: function () {
+            layer.setStyle(fallbackProvinceStyle(province, true));
+          },
+          mouseout: function () {
+            if (layer !== activeProvinceLayer) {
+              layer.setStyle(fallbackProvinceStyle(province, false));
+            }
+          },
+          click: function () {
+            if (!isVisited) return;
+            expandProvince(province.province);
+            highlightFallbackProvince(layer, province);
+            map.flyTo(province.coordinates, 6, { duration: 0.65 });
+          },
+        });
+
+        fallbackProvinceLayers.set(province.province, { layer, province });
+      });
+
+      setProvinceLayerStatus("省界数据：概略层");
     }
 
     function addProvinceLayer() {
@@ -217,7 +394,7 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
             style: provinceStyle,
             onEachFeature: function (feature, layer) {
               const provinceName = getProvinceName(feature.properties);
-              const isVisited = visitedProvinces.has(provinceName);
+              const isVisited = isProvinceVisited(provinceName);
 
               layer.bindTooltip(provinceName || "未命名省份", {
                 direction: "top",
@@ -247,13 +424,13 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
             },
           }).addTo(map);
 
-          setProvinceLayerStatus("省界数据：已加载");
+          setProvinceLayerStatus("省界数据：精确省界");
         })
         .catch(function (error) {
-          setProvinceLayerStatus("省界数据：未提供");
+          addFallbackProvinceLayer();
           if (!hasWarnedMissingGeoJson) {
             console.warn(
-              "[JourneyMap] 未加载省级 GeoJSON。请提供 public/data/china-provinces.geojson；地图将继续显示城市 marker。",
+              "[JourneyMap] 未加载省级 GeoJSON。请提供 public/data/china-provinces.geojson；地图将使用概略省份色块。",
               error
             );
             hasWarnedMissingGeoJson = true;
@@ -330,7 +507,7 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
       const provinceRow = target.closest("[data-province-trigger]");
       if (provinceRow) {
         const provinceName = provinceRow.getAttribute("data-province-trigger");
-        const province = visitedProvinces.get(provinceName);
+        const province = getProvinceRecord(provinceName);
         if (!province) return;
         expandProvince(provinceName);
 
@@ -342,6 +519,10 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
               map.fitBounds(layer.getBounds().pad(0.08), { maxZoom: 6 });
             }
           });
+        } else if (fallbackProvinceLayers.has(provinceName)) {
+          const fallbackProvince = fallbackProvinceLayers.get(provinceName);
+          highlightFallbackProvince(fallbackProvince.layer, fallbackProvince.province);
+          map.flyTo(fallbackProvince.province.coordinates, 6, { duration: 0.65 });
         } else if (province.coordinates) {
           map.flyTo(province.coordinates, 6, { duration: 0.65 });
         }

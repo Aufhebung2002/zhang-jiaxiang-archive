@@ -6,12 +6,15 @@ import journeys from "../data/journeys.json";
 
 const totalProvinces = journeys.length;
 const totalCities = journeys.reduce((sum, province) => sum + province.cities.length, 0);
-const visitedProvinceNames = journeys.map((province) => province.province).join(" / ");
+const visitedProvinceNames = journeys
+  .filter((province) => province.visited)
+  .map((province) => province.province)
+  .join(" / ");
 ---
 
 <BaseLayout>
   <section class="jn-header">
-    <p class="jn-overline">JOURNEY ARCHIVE NO. 003</p>
+    <p class="jn-overline">旅程档案 卷三</p>
     <h1 class="jn-page-title">旅程地图</h1>
     <p class="jn-page-intro">
       以省、市、区县为索引，记录成长、生活、求学、工作与旅行经过的空间档案。
@@ -37,7 +40,7 @@ const visitedProvinceNames = journeys.map((province) => province.province).join(
 
   <section>
     <div class="section-label">
-      <span class="section-label-text">GEOGRAPHIC INDEX</span>
+      <span class="section-label-text">地理索引</span>
       <span class="section-label-line"></span>
     </div>
     <JourneyCard journeys={journeys} />
@@ -45,7 +48,7 @@ const visitedProvinceNames = journeys.map((province) => province.province).join(
 
   <section class="jn-legend">
     <div class="section-label">
-      <span class="section-label-text">LEGEND</span>
+      <span class="section-label-text">类型图例</span>
       <span class="section-label-line"></span>
     </div>
     <div class="jn-legend-grid">
@@ -66,7 +69,7 @@ const visitedProvinceNames = journeys.map((province) => province.province).join(
       </div>
     </div>
     <p class="jn-legend-note">
-      当前仓库未发现中国省级边界 GeoJSON，省份 visited / unvisited 暂以统计条、图例和目录状态表达。
+      若仓库未提供中国省级边界 GeoJSON，地图会使用概略透明色块表达已点亮 / 未点亮省份。
     </p>
   </section>
 </BaseLayout>

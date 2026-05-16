@@ -3,20 +3,21 @@ import profile from "../data/profile.json";
 
 const currentPath = Astro.url.pathname;
 const navItems = [
-  { href: "/about", label: "关于我", code: "FILE 01" },
-  { href: "/journeys", label: "旅程地图", code: "FILE 02" },
-  { href: "/books", label: "我的书架", code: "FILE 03" },
-  { href: "/links", label: "网站收藏", code: "FILE 04" },
-  { href: "/notes", label: "随笔", code: "FILE 05" },
+  { href: "/about", label: "关于我", code: "卷一", meta: "个人档案" },
+  { href: "/journeys", label: "旅程地图", code: "卷二", meta: "地理索引" },
+  { href: "/books", label: "我的书架", code: "卷三", meta: "阅读目录" },
+  { href: "/links", label: "网站收藏", code: "卷四", meta: "网络资源" },
+  { href: "/notes", label: "随笔", code: "卷五", meta: "札记手稿" },
 ];
 ---
 
 <header class="site-header">
   <div class="header-inner">
     <a href="/" class="site-logo" aria-label={`${profile.siteTitle} 首页`}>
-      <span class="site-logo-mark">PRIVATE ARCHIVE / ZJX-001</span>
+      <span class="site-logo-seal">档</span>
+      <span class="site-logo-mark">私人知识档案馆</span>
       <span class="site-logo-title">{profile.siteTitle}</span>
-      <span class="site-logo-note">DIGITAL DOSSIER · MAINTAINED INDEX</span>
+      <span class="site-logo-note">阅读、旅程、书架、收藏与随笔的长期目录</span>
     </a>
     <nav class="site-nav" aria-label="档案目录导航">
       {navItems.map((item) => {
@@ -24,7 +25,8 @@ const navItems = [
         return (
           <a href={item.href} class={isActive ? "active" : undefined}>
             <span class="site-nav-code">{item.code}</span>
-            <span>{item.label}</span>
+            <span class="site-nav-label">{item.label}</span>
+            <span class="site-nav-meta">{item.meta}</span>
           </a>
         );
       })}
