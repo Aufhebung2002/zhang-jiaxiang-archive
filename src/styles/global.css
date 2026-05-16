@@ -16,6 +16,10 @@
   --color-tag-bg: #eee4d1;
   --color-tag-text: #6d583b;
   --color-rule: rgba(123, 86, 49, 0.18);
+  --print-rust: rgba(116, 72, 33, 0.18);
+  --print-teal: rgba(48, 82, 86, 0.13);
+  --print-ink-soft: rgba(45, 37, 25, 0.075);
+  --print-paper-fleck: rgba(123, 86, 49, 0.055);
   --max-width: 1080px;
   --font-sans: "Noto Serif SC", "Source Han Serif SC", "STSong", "Songti SC", "SimSun", "PingFang SC", "Microsoft YaHei", serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", "Consolas", monospace;
@@ -649,6 +653,8 @@ ul, ol {
   text-decoration: none;
 }
 .site-logo-seal {
+  position: relative;
+  overflow: hidden;
   grid-row: 1 / 4;
   display: grid;
   place-items: center;
@@ -662,6 +668,25 @@ ul, ol {
   line-height: 1;
   transform: rotate(-4deg);
   background: rgba(255, 253, 247, 0.58);
+  text-shadow: 1px 0 rgba(48, 82, 86, 0.14), -1px 0 rgba(116, 72, 33, 0.12);
+}
+.site-logo-seal::before,
+.site-logo-seal::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+.site-logo-seal::before {
+  inset: 4px;
+  border: 1px solid rgba(48, 82, 86, 0.16);
+  transform: translate(1px, -1px);
+}
+.site-logo-seal::after {
+  inset: 0;
+  background:
+    radial-gradient(circle, rgba(116, 72, 33, 0.16) 0 1px, transparent 1.2px) 0 0 / 7px 7px;
+  opacity: 0.45;
+  mix-blend-mode: multiply;
 }
 .site-logo-mark {
   font-size: 0.64rem;
@@ -738,6 +763,8 @@ ul, ol {
     linear-gradient(180deg, rgba(251, 248, 241, 0.78), rgba(239, 229, 210, 0.72));
 }
 .site-footer-inner {
+  position: relative;
+  overflow: hidden;
   max-width: var(--max-width);
   margin: 0 auto;
   display: grid;
@@ -747,7 +774,20 @@ ul, ol {
   border: 1px solid var(--color-border);
   background: rgba(255, 253, 247, 0.58);
 }
+.site-footer-inner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 7px, var(--print-ink-soft) 7px 8px),
+    radial-gradient(circle, var(--print-paper-fleck) 0 0.8px, transparent 1px) 0 0 / 11px 11px;
+  opacity: 0.26;
+  mix-blend-mode: multiply;
+}
 .site-footer-inner div {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 0.14rem;
   padding: 0.55rem 0.75rem;
@@ -868,10 +908,13 @@ ul, ol {
 }
 .archive-cover {
   position: relative;
+  overflow: hidden;
+  isolation: isolate;
   min-height: 0;
   border: 1px solid var(--color-border-strong);
   border-top: 4px double var(--color-border-strong);
   background:
+    radial-gradient(circle at 82% 18%, rgba(48, 82, 86, 0.055), transparent 12rem),
     linear-gradient(135deg, rgba(116, 72, 33, 0.07), transparent 28%),
     linear-gradient(rgba(45, 37, 25, 0.035) 1px, transparent 1px) 0 0 / 100% 34px,
     linear-gradient(90deg, rgba(123, 86, 49, 0.05) 1px, transparent 1px) 0 0 / 34px 34px,
@@ -886,6 +929,24 @@ ul, ol {
   border: 1px solid rgba(169, 143, 100, 0.7);
   box-shadow: inset 0 0 0 1px rgba(255, 253, 247, 0.62);
   pointer-events: none;
+  z-index: 2;
+}
+.archive-cover::after {
+  content: "";
+  position: absolute;
+  right: 1.15rem;
+  top: 1.15rem;
+  width: min(18rem, 36%);
+  height: 9rem;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle, var(--print-rust) 0 1.05px, transparent 1.35px) 0 0 / 7px 7px,
+    radial-gradient(circle, var(--print-teal) 0 1px, transparent 1.3px) 3px 3px / 10px 10px;
+  opacity: 0.58;
+  mix-blend-mode: multiply;
+  transform: rotate(-1.5deg);
+  mask-image: linear-gradient(105deg, transparent 0%, #000 16%, #000 72%, transparent 100%);
 }
 .archive-cover-body {
   display: grid;
@@ -896,6 +957,8 @@ ul, ol {
   z-index: 1;
 }
 .archive-cover-main {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -903,7 +966,23 @@ ul, ol {
   border: 1px solid rgba(220, 207, 181, 0.68);
   background: rgba(255, 253, 247, 0.46);
 }
+.archive-cover-main::before {
+  content: "";
+  position: absolute;
+  left: -8%;
+  bottom: -18%;
+  width: 42%;
+  height: 54%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(45, 37, 25, 0.12) 0 0.95px, transparent 1.2px) 0 0 / 8px 8px;
+  opacity: 0.28;
+  mix-blend-mode: multiply;
+  transform: rotate(2deg);
+}
 .hero-overline {
+  position: relative;
+  overflow: hidden;
   width: fit-content;
   margin-bottom: 0.9rem;
   padding: 0.12rem 0.5rem;
@@ -913,6 +992,15 @@ ul, ol {
   letter-spacing: 0.08em;
   background: rgba(238, 228, 209, 0.34);
 }
+.hero-overline::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 4px, rgba(116, 72, 33, 0.14) 4px 5px);
+  opacity: 0.24;
+  mix-blend-mode: multiply;
+}
 .hero h1 {
   max-width: 10em;
   font-size: clamp(2.1rem, 4.4vw, 3.85rem);
@@ -920,6 +1008,9 @@ ul, ol {
   line-height: 1.12;
   margin-bottom: 1rem;
   letter-spacing: 0.05em;
+  text-shadow:
+    0.035em 0.022em 0 rgba(48, 82, 86, 0.10),
+    -0.022em -0.014em 0 rgba(116, 72, 33, 0.08);
 }
 .hero .hero-text {
   max-width: 680px;
@@ -974,6 +1065,8 @@ ul, ol {
   margin: 0;
 }
 .stats-caption {
+  position: relative;
+  overflow: hidden;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -985,6 +1078,16 @@ ul, ol {
   font-size: 0.56rem;
   color: var(--color-text-muted);
   letter-spacing: 0.12em;
+}
+.stats-caption::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, var(--print-ink-soft) 0 0.8px, transparent 1px) 0 0 / 9px 9px;
+  opacity: 0.34;
+  mix-blend-mode: multiply;
 }
 .stats-grid {
   display: grid;
@@ -1026,8 +1129,24 @@ ul, ol {
   letter-spacing: 0.12em;
 }
 .archive-maintenance {
+  position: relative;
+  overflow: hidden;
   border: 1px solid var(--color-border);
   background: rgba(255, 253, 247, 0.68);
+}
+.archive-maintenance::before {
+  content: "";
+  position: absolute;
+  right: -2rem;
+  top: -1rem;
+  width: 8rem;
+  height: 6rem;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, var(--print-rust) 0 0.9px, transparent 1.2px) 0 0 / 8px 8px;
+  opacity: 0.22;
+  mix-blend-mode: multiply;
+  transform: rotate(3deg);
 }
 .maintenance-caption {
   display: flex;
@@ -1115,6 +1234,9 @@ ul, ol {
 
 /* ===== 首页总目录 ===== */
 .entry-cards {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-border-strong);
@@ -1122,7 +1244,26 @@ ul, ol {
   background: var(--color-surface);
   box-shadow: 0 14px 30px rgba(77, 56, 32, 0.06);
 }
+.entry-cards::before {
+  content: "";
+  position: absolute;
+  right: -3rem;
+  top: 0.9rem;
+  width: 13rem;
+  height: 13rem;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle, var(--print-teal) 0 1px, transparent 1.3px) 0 0 / 9px 9px,
+    radial-gradient(circle, var(--print-rust) 0 0.9px, transparent 1.2px) 4px 4px / 12px 12px;
+  opacity: 0.38;
+  mix-blend-mode: multiply;
+  transform: rotate(2deg);
+  mask-image: linear-gradient(90deg, transparent, #000 24%, #000 78%, transparent);
+}
 .entry-card {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 4.8rem minmax(0, 1fr) 6.6rem 6.8rem 4.6rem;
   align-items: stretch;
@@ -1153,6 +1294,8 @@ ul, ol {
   padding: 0.72rem 0.7rem;
 }
 .entry-card .entry-num {
+  position: relative;
+  overflow: hidden;
   justify-content: center;
   font-size: 0.82rem;
   font-weight: 700;
@@ -1160,6 +1303,16 @@ ul, ol {
   letter-spacing: 0.08em;
   background:
     linear-gradient(180deg, rgba(238, 228, 209, 0.54), rgba(255, 253, 247, 0.62));
+}
+.entry-card .entry-num::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, rgba(116, 72, 33, 0.18) 0 0.8px, transparent 1.05px) 0 0 / 8px 8px;
+  opacity: 0.32;
+  mix-blend-mode: multiply;
 }
 .entry-card .entry-main {
   display: flex;
@@ -2064,16 +2217,36 @@ ul, ol {
   margin-bottom: 1rem;
 }
 .section-label-text {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.35rem;
+  padding: 0.04rem 0.38rem 0.03rem;
+  border: 1px solid rgba(169, 143, 100, 0.42);
+  background:
+    linear-gradient(90deg, rgba(238, 228, 209, 0.38), rgba(255, 253, 247, 0.18));
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.14em;
   color: var(--color-text-muted);
   flex-shrink: 0;
 }
+.section-label-text::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, var(--print-rust) 0 0.7px, transparent 0.95px) 0 0 / 7px 7px;
+  opacity: 0.28;
+  mix-blend-mode: multiply;
+}
 .section-label-line {
   flex: 1;
   height: 1px;
-  background: var(--color-border);
+  background:
+    repeating-linear-gradient(90deg, var(--color-border) 0 10px, transparent 10px 12px);
 }
 
 /* 简介正文 */
@@ -2274,6 +2447,13 @@ ul, ol {
   }
   .archive-cover::before {
     inset: 0.45rem;
+  }
+  .archive-cover::after {
+    right: -1.5rem;
+    top: 0.55rem;
+    width: 10rem;
+    height: 6rem;
+    opacity: 0.34;
   }
   .archive-cover-body {
     grid-template-columns: 1fr;
