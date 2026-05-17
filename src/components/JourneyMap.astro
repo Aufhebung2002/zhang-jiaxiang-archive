@@ -187,23 +187,6 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
     if (status) status.textContent = text;
   }
 
-  function setActiveListItem(placeId, provinceName) {
-    document.querySelectorAll("[data-place-id]").forEach(function (row) {
-      row.classList.toggle("is-active", row.getAttribute("data-place-id") === placeId);
-    });
-
-    const cityDetails = document.querySelector(`[data-city-id="${placeId}"]`);
-    if (cityDetails) cityDetails.setAttribute("open", "");
-
-    const provinceDetails = document.querySelector(`[data-province="${provinceName}"]`);
-    if (provinceDetails) provinceDetails.setAttribute("open", "");
-  }
-
-  function expandProvince(provinceName) {
-    const provinceDetails = document.querySelector(`[data-province="${provinceName}"]`);
-    if (provinceDetails) provinceDetails.setAttribute("open", "");
-  }
-
   function initMap() {
     const mapEl = document.getElementById("journey-map");
     const dataEl = document.getElementById("journey-map-data");
@@ -269,23 +252,25 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
     }).addTo(map);
 
     let activeProvinceLayer = null;
-    let resetActiveProvinceLayer = null;
+    let resetActiveProvinceLayerStyle = null;
     let provinceLayer = null;
     const fallbackProvinceLayers = new Map();
     let hasWarnedMissingGeoJson = false;
     const markers = new Map();
     let activeId = "";
+    let activeProvinceName = "";
 
     function provinceStyle(feature) {
       const provinceName = getProvinceName(feature.properties);
       const isVisited = isProvinceVisited(provinceName);
+      const isActive = provinceName && provinceName === activeProvinceName;
       return {
         pane: "provincePane",
-        color: isVisited ? "#8a5a2b" : "#c9bea9",
-        weight: isVisited ? 1.1 : 0.65,
-        opacity: isVisited ? 0.72 : 0.5,
+        color: isActive ? "#70421e" : isVisited ? "#8a5a2b" : "#c9bea9",
+        weight: isActive ? (isVisited ? 2.2 : 1.45) : isVisited ? 1.1 : 0.65,
+        opacity: isActive ? 0.9 : isVisited ? 0.72 : 0.5,
         fillColor: isVisited ? "#b78343" : "#eee8dc",
-        fillOpacity: isVisited ? 0.34 : 0.18,
+        fillOpacity: isActive ? (isVisited ? 0.5 : 0.28) : isVisited ? 0.34 : 0.18,
       };
     }
 
@@ -302,28 +287,84 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
       };
     }
 
+    function resetActiveProvinceLayer() {
+      if (!activeProvinceLayer || !resetActiveProvinceLayerStyle) return;
+      resetActiveProvinceLayerStyle(activeProvinceLayer);
+      activeProvinceLayer = null;
+      resetActiveProvinceLayerStyle = null;
+    }
+
     function setActiveProvinceLayer(layer, applyActiveStyle, resetStyle) {
-      if (activeProvinceLayer && resetActiveProvinceLayer) {
-        resetActiveProvinceLayer(activeProvinceLayer);
+      if (activeProvinceLayer && resetActiveProvinceLayerStyle) {
+        resetActiveProvinceLayerStyle(activeProvinceLayer);
       }
 
       activeProvinceLayer = layer;
-      resetActiveProvinceLayer = resetStyle;
+      resetActiveProvinceLayerStyle = resetStyle;
       applyActiveStyle(layer);
       layer.bringToFront();
     }
 
-    function highlightProvince(layer, feature) {
+    function setActiveProvince(provinceName, options = {}) {
+      const expand = Boolean(options.expand);
+      activeProvinceName = provinceName || "";
+
+      document.querySelectorAll("[data-province]").forEach(function (details) {
+        const isActive = details.getAttribute("data-province") === activeProvinceName;
+        const row = details.querySelector("[data-province-trigger]");
+        details.classList.toggle("is-active", isActive);
+        if (row) {
+          row.classList.toggle("is-active", isActive);
+          if (isActive) {
+            row.setAttribute("aria-current", "location");
+          } else {
+            row.removeAttribute("aria-current");
+          }
+        }
+
+        const currentLabel = details.querySelector("[data-current-province-label]");
+        if (currentLabel) currentLabel.hidden = !isActive;
+
+        if (isActive && expand) {
+          details.setAttribute("open", "");
+        }
+      });
+    }
+
+    function clearActiveCity() {
+      activeId = "";
+      document.querySelectorAll("[data-place-id]").forEach(function (row) {
+        row.classList.remove("is-active");
+      });
+
+      markers.forEach(function (marker, id) {
+        const markerCity = cities.find(function (item) {
+          return item.id === id;
+        });
+        if (markerCity) marker.setIcon(markerIcon(markerCity.type, false));
+      });
+
+      map.closePopup();
+    }
+
+    function setActiveListItem(placeId, provinceName) {
+      document.querySelectorAll("[data-place-id]").forEach(function (row) {
+        row.classList.toggle("is-active", row.getAttribute("data-place-id") === placeId);
+      });
+
+      const cityDetails = document.querySelector(`[data-city-id="${placeId}"]`);
+      if (cityDetails) cityDetails.setAttribute("open", "");
+
+      setActiveProvince(provinceName, { expand: true });
+      activateProvinceLayer(provinceName);
+    }
+
+    function highlightProvinceLayer(layer, feature) {
       const provinceName = getProvinceName(feature.properties);
-      const isVisited = isProvinceVisited(provinceName);
       setActiveProvinceLayer(
         layer,
         function (activeLayer) {
-          activeLayer.setStyle({
-            color: isVisited ? "#70421e" : "#a99a83",
-            weight: isVisited ? 2 : 1.2,
-            fillOpacity: isVisited ? 0.48 : 0.25,
-          });
+          activeLayer.setStyle(provinceStyle(feature));
         },
         function (activeLayer) {
           if (provinceLayer) {
@@ -333,7 +374,7 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
       );
     }
 
-    function highlightFallbackProvince(layer, province) {
+    function highlightFallbackProvinceLayer(layer, province) {
       setActiveProvinceLayer(
         layer,
         function (activeLayer) {
@@ -343,6 +384,52 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
           activeLayer.setStyle(fallbackProvinceStyle(province, false));
         }
       );
+    }
+
+    function activateProvinceLayer(provinceName) {
+      if (!provinceName) {
+        resetActiveProvinceLayer();
+        return null;
+      }
+
+      if (provinceLayer) {
+        let matchedLayer = null;
+        provinceLayer.eachLayer(function (layer) {
+          const layerProvinceName = getProvinceName(layer.feature && layer.feature.properties);
+          if (layerProvinceName === provinceName) {
+            matchedLayer = layer;
+          }
+        });
+
+        if (matchedLayer) {
+          highlightProvinceLayer(matchedLayer, matchedLayer.feature);
+          return matchedLayer;
+        }
+      }
+
+      if (fallbackProvinceLayers.has(provinceName)) {
+        const fallbackProvince = fallbackProvinceLayers.get(provinceName);
+        highlightFallbackProvinceLayer(fallbackProvince.layer, fallbackProvince.province);
+        return fallbackProvince.layer;
+      }
+
+      resetActiveProvinceLayer();
+      return null;
+    }
+
+    function focusProvince(provinceName, options = {}) {
+      const province = getProvinceRecord(provinceName);
+      setActiveProvince(provinceName, { expand: Boolean(options.expand) });
+      const layer = activateProvinceLayer(provinceName);
+
+      if (layer && typeof layer.getBounds === "function") {
+        map.fitBounds(layer.getBounds().pad(0.08), { maxZoom: 6 });
+        return;
+      }
+
+      if (province && Array.isArray(province.coordinates)) {
+        map.flyTo(province.coordinates, 6, { duration: 0.65 });
+      }
     }
 
     function addFallbackProvinceLayer() {
@@ -368,9 +455,8 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
           },
           click: function () {
             if (!isVisited) return;
-            expandProvince(province.province);
-            highlightFallbackProvince(layer, province);
-            map.flyTo(province.coordinates, 6, { duration: 0.65 });
+            clearActiveCity();
+            focusProvince(province.province, { expand: true });
           },
         });
 
@@ -416,13 +502,16 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
                 },
                 click: function () {
                   if (!isVisited) return;
-                  expandProvince(provinceName);
-                  highlightProvince(layer, feature);
-                  map.fitBounds(layer.getBounds().pad(0.08), { maxZoom: 6 });
+                  clearActiveCity();
+                  focusProvince(provinceName, { expand: true });
                 },
               });
             },
           }).addTo(map);
+
+          if (activeProvinceName) {
+            activateProvinceLayer(activeProvinceName);
+          }
 
           setProvinceLayerStatus("省界数据：精确省界");
         })
@@ -449,7 +538,7 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
         const markerCity = cities.find(function (item) {
           return item.id === id;
         });
-        marker.setIcon(markerIcon(markerCity.type, id === activeId));
+        if (markerCity) marker.setIcon(markerIcon(markerCity.type, id === activeId));
       });
 
       const zoom = city.type === "待补充" || city.type === "途经城市" ? 9 : 10;
@@ -500,6 +589,7 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
 
       const cityRow = target.closest("[data-place-id]");
       if (cityRow) {
+        event.preventDefault();
         activateCity(cityRow.getAttribute("data-place-id"), "list");
         return;
       }
@@ -509,23 +599,8 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
         const provinceName = provinceRow.getAttribute("data-province-trigger");
         const province = getProvinceRecord(provinceName);
         if (!province) return;
-        expandProvince(provinceName);
-
-        if (provinceLayer) {
-          provinceLayer.eachLayer(function (layer) {
-            const layerProvinceName = getProvinceName(layer.feature && layer.feature.properties);
-            if (layerProvinceName === provinceName) {
-              highlightProvince(layer, layer.feature);
-              map.fitBounds(layer.getBounds().pad(0.08), { maxZoom: 6 });
-            }
-          });
-        } else if (fallbackProvinceLayers.has(provinceName)) {
-          const fallbackProvince = fallbackProvinceLayers.get(provinceName);
-          highlightFallbackProvince(fallbackProvince.layer, fallbackProvince.province);
-          map.flyTo(fallbackProvince.province.coordinates, 6, { duration: 0.65 });
-        } else if (province.coordinates) {
-          map.flyTo(province.coordinates, 6, { duration: 0.65 });
-        }
+        clearActiveCity();
+        focusProvince(provinceName);
       }
     });
 
