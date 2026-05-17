@@ -151,6 +151,10 @@
   font-size: 0.58rem;
 }
 
+#journey-map path.leaflet-interactive:focus {
+  outline: none;
+}
+
 .journey-province-tooltip {
   border: 1px solid rgba(123, 86, 49, 0.32);
   border-radius: 2px;
