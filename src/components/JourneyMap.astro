@@ -267,10 +267,10 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
       return {
         pane: "provincePane",
         color: isActive ? "#70421e" : isVisited ? "#8a5a2b" : "#c9bea9",
-        weight: isActive ? (isVisited ? 2.2 : 1.45) : isVisited ? 1.1 : 0.65,
+        weight: isActive ? (isVisited ? 2.2 : 1.8) : isVisited ? 1.1 : 0.65,
         opacity: isActive ? 0.9 : isVisited ? 0.72 : 0.5,
         fillColor: isVisited ? "#b78343" : "#eee8dc",
-        fillOpacity: isActive ? (isVisited ? 0.5 : 0.28) : isVisited ? 0.34 : 0.18,
+        fillOpacity: isActive ? (isVisited ? 0.5 : 0.34) : isVisited ? 0.34 : 0.18,
       };
     }
 
@@ -454,9 +454,8 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
             }
           },
           click: function () {
-            if (!isVisited) return;
             clearActiveCity();
-            focusProvince(province.province, { expand: true });
+            focusProvince(province.province, { expand: isVisited });
           },
         });
 
@@ -490,6 +489,11 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
 
               layer.on({
                 mouseover: function () {
+                  if (provinceName === activeProvinceName) {
+                    layer.setStyle(provinceStyle(feature));
+                    return;
+                  }
+
                   layer.setStyle({
                     weight: isVisited ? 1.8 : 1.1,
                     fillOpacity: isVisited ? 0.44 : 0.24,
@@ -501,9 +505,8 @@ const cityCount = journeys.reduce((sum, province) => sum + province.cities.lengt
                   }
                 },
                 click: function () {
-                  if (!isVisited) return;
                   clearActiveCity();
-                  focusProvince(provinceName, { expand: true });
+                  focusProvince(provinceName, { expand: isVisited });
                 },
               });
             },
