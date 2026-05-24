@@ -4,20 +4,21 @@ import BookWallCard from "../components/BookWallCard.astro";
 import books from "../data/books.json";
 
 // ── 分类封面映射 ──
+const CATEGORY_COVERS: Record<string, string> = {
+  "传记与人物": "/images/category-covers/传记与人物.png",
+  "法学": "/images/category-covers/法学.png",
+  "工具与技术": "/images/category-covers/工具与技术.png",
+  "经济与社会": "/images/category-covers/经济与社会.png",
+  "科幻": "/images/category-covers/科幻.png",
+  "数学与科学": "/images/category-covers/数学与科学.png",
+  "文学": "/images/category-covers/文学.png",
+  "心理与成长": "/images/category-covers/心理与成长.png",
+  "哲学与思想": "/images/category-covers/哲学与思想.png",
+  "其他": "/images/category-covers/其他.png",
+};
+
 function fieldToCover(field: string): string {
-  const map: Record<string, string> = {
-    "传记与人物": "/images/category-covers/传记与人物.png",
-    "法学": "/images/category-covers/法学.png",
-    "工具与技术": "/images/category-covers/工具与技术.png",
-    "经济与社会": "/images/category-covers/经济与社会.png",
-    "科幻": "/images/category-covers/科幻.png",
-    "数学与科学": "/images/category-covers/数学与科学.png",
-    "文学": "/images/category-covers/文学.png",
-    "心理与成长": "/images/category-covers/心理与成长.png",
-    "哲学与思想": "/images/category-covers/哲学与思想.png",
-    "其他": "/images/category-covers/其他.png",
-  };
-  return map[field] || map["其他"];
+  return CATEGORY_COVERS[field] || CATEGORY_COVERS["其他"];
 }
 
 // ── 墙尺寸 ──
@@ -54,19 +55,10 @@ const englishCount = books.filter((b) => b.language === "English").length;
 const booksJson = JSON.stringify(books);
 const fieldsJson = JSON.stringify(fields);
 const languagesJson = JSON.stringify(languages);
-
-const coverMap = JSON.stringify({
-  "传记与人物": "/images/category-covers/传记与人物.png",
-  "法学": "/images/category-covers/法学.png",
-  "工具与技术": "/images/category-covers/工具与技术.png",
-  "经济与社会": "/images/category-covers/经济与社会.png",
-  "科幻": "/images/category-covers/科幻.png",
-  "数学与科学": "/images/category-covers/数学与科学.png",
-  "文学": "/images/category-covers/文学.png",
-  "心理与成长": "/images/category-covers/心理与成长.png",
-  "哲学与思想": "/images/category-covers/哲学与思想.png",
-  "其他": "/images/category-covers/其他.png",
-});
+const coverMap = JSON.stringify(CATEGORY_COVERS);
+const wallSizeMap = JSON.stringify(
+  Object.fromEntries(books.map((b) => [b.id, getWallSize(b.id)]))
+);
 ---
 
 <BaseLayout>
@@ -200,12 +192,14 @@ const coverMap = JSON.stringify({
 <script type="application/json" id="bk-fields-data" set:html={fieldsJson}></script>
 <script type="application/json" id="bk-languages-data" set:html={languagesJson}></script>
 <script type="application/json" id="bk-cover-map" set:html={coverMap}></script>
+<script type="application/json" id="bk-wall-size-map" set:html={wallSizeMap}></script>
 
 <script>
   (function () {
     const books: any[] = JSON.parse(document.getElementById("bk-books-data")?.textContent || "[]");
     const allLangs: string[] = JSON.parse(document.getElementById("bk-languages-data")?.textContent || "[]");
     const coverMap: Record<string, string> = JSON.parse(document.getElementById("bk-cover-map")?.textContent || "{}");
+    const wallSizeMap: Record<string, string> = JSON.parse(document.getElementById("bk-wall-size-map")?.textContent || "{}");
 
     const wallGrid = document.getElementById("books-wall-grid")!;
     const wallSection = document.getElementById("bk-wall-section")!;
@@ -239,12 +233,8 @@ const coverMap = JSON.stringify({
     const tagBlocklist = /^\d{4}$|^中文$|^英文$|^Chinese$|^English$|^Traditional Chinese$|^(EPUB|PDF|MOBI|AZW3|AZW|DJVU|FB2|TXT|RTF|DOCX?|CBR|CBZ)$/i;
     const isDesktop = window.matchMedia("(min-width: 769px)").matches;
 
-    function hashId(id: string): number { return id.split("").reduce((s, c) => s + c.charCodeAt(0), 0); }
-    function getWallSize(id: string): string {
-      const v = hashId(id) % 12;
-      if (v < 5) return "small"; if (v < 9) return "tall"; if (v < 11) return "wide"; return "large";
-    }
     function getCover(b: any): string { return b.cover || coverMap[b.field] || coverMap["其他"]; }
+    function getBookWallSize(id: string): string { return wallSizeMap[id] || "small"; }
     function esc(s: string): string {
       return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
@@ -276,7 +266,7 @@ const coverMap = JSON.stringify({
 
     // ── 墙卡片 HTML ──
     function buildWallCard(b: any): string {
-      const sz = getWallSize(b.id);
+      const sz = getBookWallSize(b.id);
       const src = getCover(b);
       return `<div class="bw-card" data-size="${sz}" data-id="${esc(b.id)}">
         <img class="bw-card-img" src="${esc(src)}" alt="${esc(b.title)}" loading="lazy" decoding="async" />
