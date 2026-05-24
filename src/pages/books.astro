@@ -204,7 +204,6 @@ const coverMap = JSON.stringify({
 <script>
   (function () {
     const books: any[] = JSON.parse(document.getElementById("bk-books-data")?.textContent || "[]");
-    const allFields: string[] = JSON.parse(document.getElementById("bk-fields-data")?.textContent || "[]");
     const allLangs: string[] = JSON.parse(document.getElementById("bk-languages-data")?.textContent || "[]");
     const coverMap: Record<string, string> = JSON.parse(document.getElementById("bk-cover-map")?.textContent || "{}");
 

@@ -7,7 +7,6 @@ import links from "../data/links.json";
 const totalLinks = links.length;
 const categories = [...new Set(links.map((l) => l.category))];
 const commonCount = links.filter((l) => l.priority === 1).length;
-const allCategories = ["全部", ...categories];
 ---
 
 <BaseLayout>

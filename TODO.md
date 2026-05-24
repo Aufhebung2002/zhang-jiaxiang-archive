@@ -15,8 +15,8 @@
 
 ## 当前未完成
 
-- [ ] 提供 `public/data/china-provinces.geojson`；
-- [ ] 启用省级 GeoJSON 面图层；
+- [x] `public/data/china-provinces.geojson` 文件已存在，本文档此前关于“缺少文件”的信息已过期；
+- [ ] 复核省级 GeoJSON 面图层是否按预期启用；
 - [ ] 在地图上用省份填色直接区分去过省份 / 未去过省份；
 - [ ] 验收省份 hover 显示省名；
 - [ ] 验收点击已去过省份后展开对应省份目录并缩放到省级边界。
@@ -28,6 +28,6 @@
 
 ## 后续建议
 
-- 优先补充可靠的中国省级边界 GeoJSON，放置到 `public/data/china-provinces.geojson`。
+- `public/data/china-provinces.geojson` 已存在，后续优先验收它与 `/journeys` 省级面图层的实际联动。
 - GeoJSON 的 `properties` 里需要能匹配省份名称，例如 `河南省`、`浙江省`、`江苏省`、`青海省`、`甘肃省`、`内蒙古自治区`、`北京市`。
-- 在 GeoJSON 文件加入后，再集中验收 `/journeys` 的省份填色、hover tooltip、点击省份缩放和目录展开。
+- 在已存在 GeoJSON 基础上，集中验收 `/journeys` 的省份填色、hover tooltip、点击省份缩放和目录展开。
