@@ -876,18 +876,6 @@ ul, ol {
 }
 
 /* ===== 页面标题 ===== */
-.page-title {
-  font-size: 1.6rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  letter-spacing: 0.03em;
-}
-.page-subtitle {
-  font-size: 0.95rem;
-  color: var(--color-text-secondary);
-  margin-bottom: 2rem;
-  letter-spacing: 0.02em;
-}
 
 /* ===== 卡片 ===== */
 .card {
@@ -914,11 +902,6 @@ ul, ol {
 }
 
 /* ===== 网格布局 ===== */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1.2rem;
-}
 
 /* ===== 文章/散文样式 ===== */
 .prose {
@@ -1498,21 +1481,8 @@ ul, ol {
   margin-top: 0.2rem;
   letter-spacing: 0.04em;
 }
-.bk-stats-note {
-  text-align: center;
-  font-size: 0.78rem;
-  color: var(--color-text-muted);
-  margin-top: 0.6rem;
-}
 
 /* 筛选标签 */
-.bk-filter {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.6rem;
-}
 .bk-filter-label {
   font-family: var(--font-mono);
   font-size: 0.7rem;
@@ -1817,37 +1787,8 @@ ul, ol {
 }
 
 /* 地点列表 */
-.jn-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: var(--color-surface);
-}
 
 /* 地点卡片 */
-.jn-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 1.2rem 1.4rem;
-  border-bottom: 1px solid var(--color-border);
-  transition: background 0.1s;
-}
-.jn-card:last-child {
-  border-bottom: none;
-}
-.jn-card:hover {
-  background: #faf8f5;
-}
-.jn-card-header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
 .jn-num {
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -1869,34 +1810,11 @@ ul, ol {
   color: var(--color-accent);
   flex-shrink: 0;
 }
-.jn-date {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  letter-spacing: 0.04em;
-  margin-left: 1.8rem;
-}
 .jn-summary {
   font-size: 0.88rem;
   color: var(--color-text-secondary);
   line-height: 1.65;
   margin-left: 1.8rem;
-}
-.jn-story {
-  font-size: 0.84rem;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  margin-left: 1.8rem;
-}
-.jn-story summary {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: var(--color-text-muted);
-}
-.jn-story p {
-  margin-top: 0.3rem;
-  line-height: 1.65;
 }
 
 /* 类型说明 */
@@ -2558,9 +2476,6 @@ ul, ol {
   .site-footer-inner div:last-child {
     border-bottom: none;
   }
-  .card-grid {
-    grid-template-columns: 1fr;
-  }
   .entry-cards {
     display: flex;
   }
@@ -2616,10 +2531,7 @@ ul, ol {
   .jn-page-title {
     font-size: 1.5rem;
   }
-  .jn-card {
-    padding: 1rem 1rem;
-  }
-  .jn-summary, .jn-date, .jn-story {
+  .jn-summary {
     margin-left: 0;
   }
   .jn-legend-label {
